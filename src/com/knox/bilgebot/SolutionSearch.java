@@ -1,9 +1,6 @@
 package com.knox.bilgebot;
 
-import com.knox.bilgebot.piece.FuturePiece;
-import com.knox.bilgebot.piece.NullPiece;
-import com.knox.bilgebot.piece.Piece;
-import com.knox.bilgebot.piece.StandardPiece;
+import com.knox.bilgebot.piece.*;
 import com.knox.bilgebot.solution.Solution;
 
 import java.util.ArrayList;
@@ -49,11 +46,16 @@ public class SolutionSearch
             int y = i / board[0].length;
             int x = i % board[0].length;
 
-            if (x == 5 || board[y][x] == null || board[y][x + 1] == null)
-            {
+            if (x == 5 ||
+                    board[y][x] == null || board[y][x + 1] == null ||
+                    board[y][x] == CrabPiece.INSTANCE || board[y][x + 1] == CrabPiece.INSTANCE ||
+                    board[y][x] == NullPiece.INSTANCE || board[y][x + 1] == NullPiece.INSTANCE ||
+                    board[y][x] == FuturePiece.INSTANCE || board[y][x + 1] == FuturePiece.INSTANCE
+            ){
                 continue;
             }
 
+            // two normal pieces
             if (board[y][x] instanceof StandardPiece && board[y][x + 1] instanceof StandardPiece)
             {
                 if(board[y][x].equals(board[y][x + 1]))
@@ -98,6 +100,48 @@ public class SolutionSearch
                 bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
 
                 swapAdjacent(x, y);
+            }
+            // pufferfish
+            else if (board[y][x] == BlowfishPiece.INSTANCE || board[y][x + 1] == BlowfishPiece.INSTANCE) {
+                for(int k = 0; k < board.length; k++)
+                {
+                    System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
+                }
+
+                boolean isBlowFishLeft = cleanBoard[y][x] == BlowfishPiece.INSTANCE;
+                boolean isBlowFishRight = cleanBoard[y][x + 1] == BlowfishPiece.INSTANCE;
+
+                int initialScore = 0;
+                if(isBlowFishLeft) {
+                    for(int currentY = y - 1; currentY <= y + 1; currentY++)
+                        for(int currentX = x - 1; currentX <= x + 1; currentX++)
+                            if(currentY > 0 && currentY < cleanBoard.length - 1 &&
+                                    currentX > 0 && currentX < cleanBoard[0].length - 1 &&
+                                    cleanBoard[currentY][currentX] != null &&
+                                    cleanBoard[currentY][currentX] != FuturePiece.INSTANCE
+                            ) {
+                                cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
+                                initialScore += 1;
+                            }
+                }
+                if(isBlowFishRight) {
+                    for(int currentY = y - 1; currentY <= y + 1; currentY++)
+                        for(int currentX = x; currentX <= x + 2; currentX++)
+                            if(currentY > 0 && currentY < cleanBoard.length - 1 &&
+                                    currentX > 0 && currentX < cleanBoard[0].length - 1 &&
+                                    cleanBoard[currentY][currentX] != null &&
+                                    cleanBoard[currentY][currentX] != FuturePiece.INSTANCE
+                            ) {
+                                cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
+                                initialScore += 1;
+                            }
+                }
+                Solution solution = new Solution(initialScore / 2, new ArrayList<>());
+
+                tickBoard(cleanBoard);
+                solution.setScore(solution.getScore() + handleBoardClearing(board));
+
+                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
             }
         }
 
