@@ -89,20 +89,8 @@ public class SolutionSearch
                 ) {
 
                     ScoreSearch scoreSearch = new ScoreSearch(board);
-
                     solution = scoreSearch.search(x,y);
-                    int initialScore = solution.getScore();
-                    Solution tempSolution;
-                    while ((tempSolution = scoreSearch.search(-1, -1)).getScore() > 0) //Keep summing score until board is clean
-                    {
-                        totalScore += Math.min(tempSolution.getScore(), 7);
-                        cleanBoard = ScoreSearch.searchAndRemove(cleanBoard);
-                        cleanBoard = SolutionSearch.tickBoard(cleanBoard);
-                        scoreSearch = new ScoreSearch(cleanBoard);
-                    }
-                    totalScore /= 3;
-                    totalScore += initialScore;
-                    solution.setScore(totalScore);
+                    solution.setScore(solution.getScore() + handleBoardClearing(board));
                 } else {
                     solution = new Solution(0, new ArrayList<>());
                 }
@@ -175,6 +163,21 @@ public class SolutionSearch
         }
 
         return bestSwaps;
+    }
+
+    private int handleBoardClearing(Piece[][] workingBoard){
+        ScoreSearch scoreSearch = new ScoreSearch(workingBoard);
+        Solution tempSolution;
+        int totalScore = 0;
+        while ((tempSolution = scoreSearch.search(-1, -1)).getScore() > 0) //Keep summing score until board is clean
+        {
+            totalScore += Math.min(tempSolution.getScore(), 7);
+            cleanBoard = ScoreSearch.searchAndRemove(cleanBoard);
+            cleanBoard = SolutionSearch.tickBoard(cleanBoard);
+            scoreSearch = new ScoreSearch(cleanBoard);
+        }
+        totalScore /= 3;
+        return totalScore;
     }
 
     private static int sumSwapScores(List<Swap> swaps)
