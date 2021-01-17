@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class CrabPiece extends Piece
 {
-    public CrabPiece()
+    public static final CrabPiece INSTANCE = new CrabPiece();
+
+    private CrabPiece()
     {
         super(new Color(83, 100, 97), new Color(83, 100, 97));
     }

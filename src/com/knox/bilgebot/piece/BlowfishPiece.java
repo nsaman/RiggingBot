@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class BlowfishPiece extends Piece
 {
-    public BlowfishPiece()
+    public static final BlowfishPiece INSTANCE = new BlowfishPiece();
+
+    private BlowfishPiece()
     {
         super(new Color(250, 242, 68), new Color(100, 142, 124));
     }

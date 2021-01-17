@@ -18,13 +18,13 @@ public abstract class StandardPiece extends Piece
     protected static ArrayList<StandardPiece> populatePieces()
     {
         ArrayList<StandardPiece> pieces = new ArrayList<>();
-        pieces.add(new BlueBrickPiece());
-        pieces.add(new CyanMarblePiece());
-        pieces.add(new ShellPiece());
-        pieces.add(new TealMarblePiece());
-        pieces.add(new WaveBrickPiece());
-        pieces.add(new CyanBrickPiece());
-        pieces.add(new PentagonPiece());
+        pieces.add(BlueBrickPiece.INSTANCE);
+        pieces.add(CyanMarblePiece.INSTANCE);
+        pieces.add(ShellPiece.INSTANCE);
+        pieces.add(TealMarblePiece.INSTANCE);
+        pieces.add(WaveBrickPiece.INSTANCE);
+        pieces.add(CyanBrickPiece.INSTANCE);
+        pieces.add(PentagonPiece.INSTANCE);
         return pieces;
     }
 }

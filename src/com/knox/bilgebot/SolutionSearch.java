@@ -4,7 +4,6 @@ import com.knox.bilgebot.piece.FuturePiece;
 import com.knox.bilgebot.piece.NullPiece;
 import com.knox.bilgebot.piece.Piece;
 import com.knox.bilgebot.piece.StandardPiece;
-import com.knox.bilgebot.solution.FiveComboSolution;
 import com.knox.bilgebot.solution.Solution;
 
 import java.util.ArrayList;
@@ -40,6 +39,10 @@ public class SolutionSearch
     public List<Swap> searchDepth(int depth)
     {
         List<Swap> bestSwap = null;
+        for(int k = 0; k < board.length; k++)
+        {
+            System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
+        }
 
         for (int i = startIndex; i < endIndex; i++)
         {
@@ -58,41 +61,72 @@ public class SolutionSearch
                     continue;
                 }
                 swapAdjacent(x, y);
-
-                ScoreSearch scoreSearch = new ScoreSearch(board);
-                int score = 0;
                 for(int k = 0; k < board.length; k++)
                 {
                     System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
                 }
-                Solution solution = scoreSearch.search();
-                int initialScore = solution.getScore();
-                Solution tempSolution;
-                while ((tempSolution = scoreSearch.search()).getScore() > 0) //Keep summing score until board is clean
-                {
-                    score += Math.min(tempSolution.getScore(), new FiveComboSolution().getScore());
-                    cleanBoard = ScoreSearch.searchAndRemove(cleanBoard);
-                    cleanBoard = SolutionSearch.tickBoard(cleanBoard);
-                    scoreSearch = new ScoreSearch(cleanBoard);
-                }
-                score /= 3;
-                score += initialScore;
 
-                if (bestSwap == null || score > sumSwapScores(bestSwap))
+                int totalScore = 0;
+                Solution solution;
+                // quick check if there are any series
+                if (
+                    // left horizontal
+                    (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
+                    // right horizontal
+                    (x < (board[0].length - 3) && board[y][x + 1] == board[y][x + 2] && board[y][x + 1] == board[y][x + 3]) ||
+                    // two above vertical left
+                    (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
+                    // one above, one below vertical left
+                    (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
+                    // two below vertical left
+                    (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]) ||
+                    // two above vertical right
+                    (y > 1 && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y - 2][x + 1]) ||
+                    // one above, one below vertical right
+                    (y > 0 && y < (board.length - 1) && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y + 1][x + 1]) ||
+                    // two below vertical right
+                    (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
+                ) {
+
+                    ScoreSearch scoreSearch = new ScoreSearch(board);
+
+                    solution = scoreSearch.search(x,y);
+                    int initialScore = solution.getScore();
+                    Solution tempSolution;
+                    while ((tempSolution = scoreSearch.search(-1, -1)).getScore() > 0) //Keep summing score until board is clean
+                    {
+                        totalScore += Math.min(tempSolution.getScore(), 7);
+                        cleanBoard = ScoreSearch.searchAndRemove(cleanBoard);
+                        cleanBoard = SolutionSearch.tickBoard(cleanBoard);
+                        scoreSearch = new ScoreSearch(cleanBoard);
+                    }
+                    totalScore /= 3;
+                    totalScore += initialScore;
+                    solution.setScore(totalScore);
+                } else {
+                    solution = new Solution(0, new ArrayList<>());
+                }
+
+                // if current best swap is null, initialize with this
+                if (bestSwap == null)
                 {
                     bestSwap = new ArrayList<>();
                     bestSwap.add(new Swap(x, y, solution));
                 }
 
+                List<Swap> currentSwaps = new ArrayList<>();
+                // if not at leaves, find the best swaps of children
                 if (depth > 1)
                 {
                     SolutionSearch solDepthSearch = new SolutionSearch(cleanBoard, depth - 1, 0, 72);
-                    List<Swap> depthSwaps = solDepthSearch.searchDepth(depth - 1);
-                    depthSwaps.add(0, new Swap(x, y, solution));
-                    if (sumSwapScores(depthSwaps) > sumSwapScores(bestSwap))
-                    {
-                        bestSwap = depthSwaps;
-                    }
+                    currentSwaps = solDepthSearch.searchDepth(depth - 1);
+                }
+
+                currentSwaps.add(0, new Swap(x,y,solution));
+                // if better than current swap
+                if (sumSwapScores(currentSwaps) > sumSwapScores(bestSwap))
+                {
+                    bestSwap = currentSwaps;
                 }
 
                 swapAdjacent(x, y);
@@ -146,9 +180,9 @@ public class SolutionSearch
     private static int sumSwapScores(List<Swap> swaps)
     {
         int sum = 0;
-        for (Swap swap : swaps)
+        for(int i = 0; i < swaps.size(); i++)
         {
-            sum += swap.getScore();
+            sum += swaps.get(i).getScore() * (1 - (.10 * i));
         }
         return sum;
     }
@@ -177,7 +211,7 @@ public class SolutionSearch
                 }
                 if(y >= board.length - vOffset) //TODO: verify correct?
                 {
-                    board[y][x] = new NullPiece();
+                    board[y][x] = NullPiece.INSTANCE;
                 }
             }
             vOffset = 0;

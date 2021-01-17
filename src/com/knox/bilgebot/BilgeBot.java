@@ -61,7 +61,7 @@ public class BilgeBot
         status.log("Bilge Bot initializing...");
         status.setStatus("Initializing");
 
-        numThreads = Runtime.getRuntime().availableProcessors();
+        numThreads = 8;
         status.log("Found " + numThreads + " processors; will run " + numThreads + " threads");
 
         try
@@ -155,7 +155,9 @@ public class BilgeBot
         {
             tickThread.shutdown();
         }
-        swapQueue.clear();
+        if(swapQueue != null) {
+            swapQueue.clear();
+        }
         if(overlayFrame != null)
         {
             overlayFrame.setVisible(false);
@@ -314,7 +316,7 @@ public class BilgeBot
         if(autoMode && System.currentTimeMillis() - lastSwapTime > 250 && ! mouseMoveThread.hasMove())
         {
 
-            if (swapQueue.isEmpty()) //Finds a move if one is needed
+            if (true) //swapQueue.isEmpty()) //Finds a move if one is needed
             {
                 overlayFrame.setSolution(null);
                 System.out.println("Searching for new swaps...");

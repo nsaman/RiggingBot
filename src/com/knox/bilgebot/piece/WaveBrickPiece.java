@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class WaveBrickPiece extends StandardPiece
 {
-    public WaveBrickPiece()
+    public static final WaveBrickPiece INSTANCE = new WaveBrickPiece();
+
+    private WaveBrickPiece()
     {
         super(new Color(99, 211, 247), new Color(40, 129, 196));
     }

@@ -1,13 +1,23 @@
 package com.knox.bilgebot.solution;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by Jacob on 7/16/2015.
  */
-public abstract class Solution implements Comparable
+public class Solution implements Comparable
 {
     private int score;
+    List<Integer> combos;
 
-    public Solution(int score)
+    public Solution(int score, List<Integer> combos)
+    {
+        this.score = score;
+        this.combos = combos;
+    }
+
+    public void setScore(int score)
     {
         this.score = score;
     }
@@ -26,5 +36,9 @@ public abstract class Solution implements Comparable
     }
 
     @Override
-    public abstract String toString();
+    public String toString() {
+        if(combos == null || combos.size() == 0)
+            return "No combo";
+       return combos.stream().map(Object::toString).collect(Collectors.joining("x"));
+    }
 }

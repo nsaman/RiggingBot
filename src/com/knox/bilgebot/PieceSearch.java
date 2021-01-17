@@ -52,9 +52,9 @@ public class PieceSearch
                     if(pieces[y][x] == null)
                     {
                         color = new Color(screenCapture.getRGB(xPos, yPos + 10));
-                        if(new CrabPiece().isColorPiece(color))
+                        if(CrabPiece.INSTANCE.isColorPiece(color))
                         {
-                            pieces[y][x] = new CrabPiece();
+                            pieces[y][x] = CrabPiece.INSTANCE;
                         }
                     }
                 }

@@ -16,10 +16,10 @@ public abstract class Piece
     private static ArrayList<Piece> populatePieces()
     {
         ArrayList<Piece> pieces = new ArrayList<>();
-        pieces.add(0, new NullPiece());
-        pieces.add(new BlowfishPiece());
-        pieces.add(new JellyfishPiece());
-        pieces.add(new CrabPiece());
+        pieces.add(0, NullPiece.INSTANCE);
+        pieces.add(BlowfishPiece.INSTANCE);
+        pieces.add(JellyfishPiece.INSTANCE);
+        pieces.add(CrabPiece.INSTANCE);
         pieces.addAll(StandardPiece.populatePieces());
         return pieces;
     }

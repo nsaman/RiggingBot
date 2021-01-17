@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class BlueBrickPiece extends StandardPiece
 {
-    public BlueBrickPiece()
+    public static final BlueBrickPiece INSTANCE = new BlueBrickPiece();
+
+    private BlueBrickPiece()
     {
         super(new Color(20, 76, 212), new Color(8, 75, 182));
     }

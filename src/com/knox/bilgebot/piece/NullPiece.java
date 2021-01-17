@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class NullPiece extends Piece
 {
-    public NullPiece()
+    public static final NullPiece INSTANCE = new NullPiece();
+
+    private NullPiece()
     {
         super(Color.BLACK, Color.BLACK);
     }

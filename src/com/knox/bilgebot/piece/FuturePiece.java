@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class FuturePiece extends Piece
 {
-    public FuturePiece()
+    public static final FuturePiece INSTANCE = new FuturePiece();
+
+    private FuturePiece()
     {
         super(new Color(0, 0, 0), new Color(0, 0, 0));
     }

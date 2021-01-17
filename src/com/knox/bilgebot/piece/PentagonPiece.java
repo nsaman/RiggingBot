@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class PentagonPiece extends StandardPiece
 {
-    public PentagonPiece()
+    public static final PentagonPiece INSTANCE = new PentagonPiece();
+
+    private PentagonPiece()
     {
         super(new Color(87, 189, 235), new Color(35, 121, 191));
     }

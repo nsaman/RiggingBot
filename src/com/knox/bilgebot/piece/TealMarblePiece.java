@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class TealMarblePiece extends StandardPiece
 {
-    public TealMarblePiece()
+    public static final TealMarblePiece INSTANCE = new TealMarblePiece();
+
+    private TealMarblePiece()
     {
         super(new Color(162, 216, 190), new Color(65, 131, 173));
     }

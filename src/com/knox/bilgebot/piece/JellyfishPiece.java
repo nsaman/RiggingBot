@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class JellyfishPiece extends Piece
 {
-    public JellyfishPiece()
+    public static final JellyfishPiece INSTANCE = new JellyfishPiece();
+
+    private JellyfishPiece()
     {
         super(new Color(255, 129, 217), new Color(102, 97, 184));
     }

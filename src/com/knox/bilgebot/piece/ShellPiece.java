@@ -7,7 +7,9 @@ import java.awt.*;
  */
 public class ShellPiece extends StandardPiece
 {
-    public ShellPiece()
+    public static final ShellPiece INSTANCE = new ShellPiece();
+
+    private ShellPiece()
     {
         super(new Color(136, 226, 197), new Color(54, 135, 176));
     }
