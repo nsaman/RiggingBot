@@ -29,7 +29,7 @@ public class StatusFrame extends JFrame
 
     public StatusFrame(BilgeBot bilgeBot)
     {
-        super("Knox's Bilge Bot - " + UpdateManager.getVersionString());
+        super("Big Plays - " + UpdateManager.getVersionString());
         this.bilgeBot = bilgeBot;
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
