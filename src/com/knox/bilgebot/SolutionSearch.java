@@ -49,12 +49,12 @@ public class SolutionSearch
             int y = i / board[0].length;
             int x = i % board[0].length;
 
-            if (x == 5)
+            if (x == 5 || board[y][x] == null || board[y][x + 1] == null)
             {
                 continue;
             }
 
-            if (board[y][x] != null && board[y][x] instanceof StandardPiece && board[y][x + 1] != null && board[y][x + 1] instanceof StandardPiece)
+            if (board[y][x] instanceof StandardPiece && board[y][x + 1] instanceof StandardPiece)
             {
                 if(board[y][x].equals(board[y][x + 1]))
                 {
@@ -95,27 +95,7 @@ public class SolutionSearch
                     solution = new Solution(0, new ArrayList<>());
                 }
 
-                // if current best swap is null, initialize with this
-                if (bestSwap == null)
-                {
-                    bestSwap = new ArrayList<>();
-                    bestSwap.add(new Swap(x, y, solution));
-                }
-
-                List<Swap> currentSwaps = new ArrayList<>();
-                // if not at leaves, find the best swaps of children
-                if (depth > 1)
-                {
-                    SolutionSearch solDepthSearch = new SolutionSearch(cleanBoard, depth - 1, 0, 72);
-                    currentSwaps = solDepthSearch.searchDepth(depth - 1);
-                }
-
-                currentSwaps.add(0, new Swap(x,y,solution));
-                // if better than current swap
-                if (sumSwapScores(currentSwaps) > sumSwapScores(bestSwap))
-                {
-                    bestSwap = currentSwaps;
-                }
+                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
 
                 swapAdjacent(x, y);
             }
@@ -178,6 +158,33 @@ public class SolutionSearch
         }
         totalScore /= 3;
         return totalScore;
+    }
+
+    private List<Swap> findBestChildSwap(List<Swap> bestSwap, int x, int y, Solution solution, int depth){
+
+        // if current best swap is null, initialize with this
+        if (bestSwap == null)
+        {
+            bestSwap = new ArrayList<>();
+            bestSwap.add(new Swap(x, y, solution));
+        }
+
+        List<Swap> currentSwaps = new ArrayList<>();
+        // if not at leaves, find the best swaps of children
+        if (depth > 1)
+        {
+            SolutionSearch solDepthSearch = new SolutionSearch(cleanBoard, depth - 1, 0, 72);
+            currentSwaps = solDepthSearch.searchDepth(depth - 1);
+        }
+
+        currentSwaps.add(0, new Swap(x,y,solution));
+        // if better than current swap
+        if (sumSwapScores(currentSwaps) > sumSwapScores(bestSwap))
+        {
+            bestSwap = currentSwaps;
+        }
+
+        return bestSwap;
     }
 
     private static int sumSwapScores(List<Swap> swaps)
