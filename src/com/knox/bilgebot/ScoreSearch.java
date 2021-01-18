@@ -1,7 +1,7 @@
 package com.knox.bilgebot;
 
 import com.knox.bilgebot.piece.*;
-import com.knox.bilgebot.solution.*;
+import com.knox.bilgebot.solution.Solution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +12,10 @@ import java.util.List;
 public class ScoreSearch
 {
 
-    public static Solution search(Piece[][] board, int swapX, int swapY)
+    public static Solution searchAndRemove(Piece[][] board, int swapX, int swapY)
     {
+        List<IntTuple> removes = new ArrayList<>();
+
         int yMin = 0;
         int yMax = board.length - 1;
         if(swapY != -1) {
@@ -40,6 +42,9 @@ public class ScoreSearch
                 if(board[y][x] == null) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
+                        for (int i = 1; i <= previousPieceCount; i++) {
+                            removes.add(new IntTuple(y, x - i));
+                        }
                         clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                     }
                     previousPieceType = null;
@@ -52,6 +57,9 @@ public class ScoreSearch
                             currentPiece.getClass() != previousPieceType.getClass()) {
                         if(previousPieceCount >= 3) {
                             combos.add(previousPieceCount);
+                            for (int i = 1; i <= previousPieceCount; i++) {
+                                removes.add(new IntTuple(y, x - i));
+                            }
                             clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                         }
 
@@ -71,6 +79,9 @@ public class ScoreSearch
             // add the combo at the end
             if(previousPieceCount >= 3) {
                 combos.add(previousPieceCount);
+                for (int i = 1; i <= previousPieceCount; i++) {
+                    removes.add(new IntTuple(y, board[0].length - i));
+                }
                 clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
             }
         }
@@ -84,6 +95,9 @@ public class ScoreSearch
                 if(board[y][x] == null) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
+                        for (int i = 1; i <= previousPieceCount; i++) {
+                            removes.add(new IntTuple(y - i, x));
+                        }
                         clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                     }
                     previousPieceType = null;
@@ -96,6 +110,9 @@ public class ScoreSearch
                             currentPiece.getClass() != previousPieceType.getClass()) {
                         if(previousPieceCount >= 3) {
                             combos.add(previousPieceCount);
+                            for (int i = 1; i <= previousPieceCount; i++) {
+                                removes.add(new IntTuple(y - i, x));
+                            }
                             clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                         }
 
@@ -115,136 +132,36 @@ public class ScoreSearch
             // add the combo at the end
             if(previousPieceCount >= 3) {
                 combos.add(previousPieceCount);
+                for (int i = 1; i <= previousPieceCount; i++) {
+                    removes.add(new IntTuple(board.length - i, x));
+                }
                 clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
             }
         }
+
+        removes.forEach(tuple -> {
+            board[tuple.y][tuple.x] = FuturePiece.INSTANCE;
+        });
 
         // https://yppedia.puzzlepirates.com/Bilge_scoring
         return new Solution(combos.size() == 0 ? 0 : combos.size() * clearedValue, combos);
     }
 
-    public static Piece[][] searchAndRemove(Piece[][] board)
-    {
+    private static class IntTuple {
+        private int y;
+        private int x;
 
-        Class<StandardPiece> prevPiece = null;
-        int prevPieces = 0;
-
-        for (int y = 0; y < board.length; y++)
-        {
-            for (int x = 0; x < board[0].length; x++)
-            {
-                if (board[y][x] == null)
-                {
-                    if (prevPieces >= 3)
-                    {
-                        for (int i = x - prevPieces; i < x; i++)
-                        {
-                            board[y][i] = FuturePiece.INSTANCE;
-                        }
-                    }
-                    prevPiece = null;
-                    prevPieces = 0;
-                    continue;
-                }
-                if (!(board[y][x] instanceof StandardPiece))
-                {
-                    if (prevPieces >= 3)
-                    {
-                        for (int i = x - prevPieces; i < x; i++)
-                        {
-                            board[y][i] = FuturePiece.INSTANCE;
-                        }
-                    }
-                    prevPieces = 0;
-                    prevPiece = null;
-                } else //Standard Piece
-                {
-                    if (prevPiece == null || !prevPiece.equals(board[y][x].getClass())) //Different piece than previous
-                    {
-                        if (prevPieces >= 3)
-                        {
-                            for (int i = x - prevPieces; i < x; i++)
-                            {
-                                board[y][i] = FuturePiece.INSTANCE;
-                            }
-                        }
-                        prevPiece = (Class<StandardPiece>) board[y][x].getClass();
-                        prevPieces = 1;
-                    } else
-                    {
-                        prevPieces++;
-                    }
-                }
-            }
-            if (prevPieces >= 3)
-            {
-                for (int i = board[0].length - prevPieces; i < board[0].length; i++) //TODO: verify
-                {
-                    board[y][i] = FuturePiece.INSTANCE;
-                }
-            }
-            prevPiece = null;
-            prevPieces = 0;
+        public IntTuple(int y, int x) {
+            this.y = y;
+            this.x = x;
         }
 
-        prevPiece = null;
-        prevPieces = 0;
-
-        for (int x = 0; x < board[0].length; x++)
-        {
-            for (int y = 0; y < board.length; y++)
-            {
-                if (board[y][x] == null)
-                {
-                    for (int i = y - prevPieces; i < y; i++)
-                    {
-                        board[i][x] = FuturePiece.INSTANCE;
-                    }
-                    prevPiece = null;
-                    prevPieces = 0;
-                    continue;
-                }
-                if (!(board[y][x] instanceof StandardPiece))
-                {
-                    if (prevPieces >= 3)
-                    {
-                        for (int i = y - prevPieces; i < y; i++)
-                        {
-                            board[i][x] = FuturePiece.INSTANCE;
-                        }
-                    }
-                    prevPiece = (Class<StandardPiece>) board[y][x].getClass();
-                    prevPieces = 0;
-                } else //Standard Piece
-                {
-                    if (prevPiece == null || !prevPiece.equals(board[y][x].getClass()))
-                    {
-                        if (prevPieces >= 3)
-                        {
-                            for (int i = y - prevPieces; i < y; i++)
-                            {
-                                board[i][x] = FuturePiece.INSTANCE;
-                            }
-                        }
-                        prevPiece = (Class<StandardPiece>) board[y][x].getClass();
-                        prevPieces = 1;
-                    } else
-                    {
-                        prevPieces++;
-                    }
-                }
-            }
-            if (prevPieces >= 3)
-            {
-                for (int i = board.length - prevPieces; i < board.length; i++)
-                {
-                    board[i][x] = FuturePiece.INSTANCE;
-                }
-            }
-            prevPiece = null;
-            prevPieces = 0;
+        public int getY() {
+            return y;
         }
 
-        return board;
+        public int getX() {
+            return x;
+        }
     }
 }

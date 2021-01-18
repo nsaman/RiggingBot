@@ -62,7 +62,6 @@ public class SolutionSearch
                     continue;
                 }
                 swapAdjacent(x, y);
-                copyToCleanBoard(board);
 
                 int totalScore = 0;
                 Solution solution;
@@ -85,18 +84,19 @@ public class SolutionSearch
                     // two below vertical right
                     (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
                 ) {
+                    copyToCleanBoard(board);
 
-                    solution = ScoreSearch.search(board,x,y);
+                    solution = ScoreSearch.searchAndRemove(cleanBoard,x,y);
                     if (solution.getScore() > 0) {
-                        ScoreSearch.searchAndRemove(cleanBoard);
                         SolutionSearch.tickBoard(cleanBoard);
-                        solution.setScore(solution.getScore() + handleBoardClearing(board));
+                        solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
                     }
+                    bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
                 } else {
                     solution = new Solution(0, new ArrayList<>());
+                    bestSwap = findBestChildSwap(board, bestSwap, x, y, solution, depth);
                 }
 
-                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
 
                 swapAdjacent(x, y);
             }
@@ -135,9 +135,9 @@ public class SolutionSearch
                 Solution solution = new Solution(initialScore / 2, new ArrayList<>());
 
                 tickBoard(cleanBoard);
-                solution.setScore(solution.getScore() + handleBoardClearing(board));
+                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
 
-                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
+                bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
             }
             // Jellyfish
             else if (board[y][x] == JellyfishPiece.INSTANCE || board[y][x + 1] == JellyfishPiece.INSTANCE) {
@@ -157,9 +157,9 @@ public class SolutionSearch
                 Solution solution = new Solution(initialScore / 2, new ArrayList<>());
 
                 tickBoard(cleanBoard);
-                solution.setScore(solution.getScore() + handleBoardClearing(board));
+                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
 
-                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
+                bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
             }
         }
 
@@ -218,9 +218,8 @@ public class SolutionSearch
         //Keep summing score until board is clean
         do
         {
-            tempSolution = ScoreSearch.search(currentBoard,-1,-1);
+            tempSolution = ScoreSearch.searchAndRemove(currentBoard,-1,-1);
             totalScore += Math.min(tempSolution.getScore(), 7);
-            ScoreSearch.searchAndRemove(cleanBoard);
             SolutionSearch.tickBoard(cleanBoard);
             currentBoard = cleanBoard;
         } while (tempSolution.getScore() > 0);
@@ -228,7 +227,7 @@ public class SolutionSearch
         return totalScore;
     }
 
-    private List<Swap> findBestChildSwap(List<Swap> bestSwap, int x, int y, Solution solution, int depth){
+    private List<Swap> findBestChildSwap(Piece[][] sourceBoard, List<Swap> bestSwap, int x, int y, Solution solution, int depth){
 
         // if current best swap is null, initialize with this
         if (bestSwap == null)
@@ -241,7 +240,7 @@ public class SolutionSearch
         // if not at leaves, find the best swaps of children
         if (depth > 1)
         {
-            SolutionSearch solDepthSearch = new SolutionSearch(cleanBoard, depth - 1, 0, 72);
+            SolutionSearch solDepthSearch = new SolutionSearch(sourceBoard, depth - 1, 0, 72);
             currentSwaps = solDepthSearch.searchDepth(depth - 1);
         }
 
