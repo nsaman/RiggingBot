@@ -23,7 +23,7 @@ public class TickThread extends Thread
         {
             try
             {
-                sleep(100);
+                sleep(0);
             } catch (InterruptedException e)
             {
                 //do nothing
@@ -31,7 +31,7 @@ public class TickThread extends Thread
             long initTickTime = System.currentTimeMillis();
             bilgeBot.tick();
             long tickTime = System.currentTimeMillis() - initTickTime;
-            if (tickTime > 200)
+            if (tickTime > 30)
             {
                 System.out.println("Tick time: " + (System.currentTimeMillis() - initTickTime));
             }
