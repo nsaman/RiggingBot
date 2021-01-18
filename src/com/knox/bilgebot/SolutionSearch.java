@@ -4,6 +4,7 @@ import com.knox.bilgebot.piece.*;
 import com.knox.bilgebot.solution.Solution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,10 +37,7 @@ public class SolutionSearch
     public List<Swap> searchDepth(int depth)
     {
         List<Swap> bestSwap = null;
-        for(int k = 0; k < board.length; k++)
-        {
-            System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
-        }
+        copyToCleanBoard(board);
 
         for (int i = startIndex; i < endIndex; i++)
         {
@@ -64,10 +62,7 @@ public class SolutionSearch
                     continue;
                 }
                 swapAdjacent(x, y);
-                for(int k = 0; k < board.length; k++)
-                {
-                    System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
-                }
+                copyToCleanBoard(board);
 
                 int totalScore = 0;
                 Solution solution;
@@ -104,10 +99,7 @@ public class SolutionSearch
             }
             // pufferfish
             else if (board[y][x] == BlowfishPiece.INSTANCE || board[y][x + 1] == BlowfishPiece.INSTANCE) {
-                for(int k = 0; k < board.length; k++)
-                {
-                    System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
-                }
+                copyToCleanBoard(board);
 
                 boolean isBlowFishLeft = cleanBoard[y][x] == BlowfishPiece.INSTANCE;
                 boolean isBlowFishRight = cleanBoard[y][x + 1] == BlowfishPiece.INSTANCE;
@@ -146,10 +138,7 @@ public class SolutionSearch
             }
             // Jellyfish
             else if (board[y][x] == JellyfishPiece.INSTANCE || board[y][x + 1] == JellyfishPiece.INSTANCE) {
-                for(int k = 0; k < board.length; k++)
-                {
-                    System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
-                }
+                copyToCleanBoard(board);
 
                 boolean isLeft = cleanBoard[y][x] == JellyfishPiece.INSTANCE;
                 Piece clearedPiece = isLeft ? cleanBoard[y][x + 1] : cleanBoard[y][x];
@@ -213,6 +202,10 @@ public class SolutionSearch
         }
 
         return bestSwaps;
+    }
+
+    private void copyToCleanBoard(Piece[][] board) {
+        cleanBoard = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
     }
 
     private int handleBoardClearing(Piece[][] workingBoard){
