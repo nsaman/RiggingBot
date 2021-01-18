@@ -219,9 +219,11 @@ public class SolutionSearch
         do
         {
             tempSolution = ScoreSearch.searchAndRemove(currentBoard,-1,-1);
-            totalScore += Math.min(tempSolution.getScore(), 7);
-            SolutionSearch.tickBoard(cleanBoard);
-            currentBoard = cleanBoard;
+            if(tempSolution.getScore() > 0) {
+                totalScore += Math.min(tempSolution.getScore(), 7);
+                SolutionSearch.tickBoard(cleanBoard);
+                currentBoard = cleanBoard;
+            }
         } while (tempSolution.getScore() > 0);
         totalScore /= 3;
         return totalScore;
@@ -278,7 +280,7 @@ public class SolutionSearch
         {
             for (int y = 0; y < board.length; y++)
             {
-                if (board[y][x] instanceof FuturePiece)
+                if (board[y][x] == FuturePiece.INSTANCE)
                 {
                     vOffset++;
                 }
@@ -293,7 +295,6 @@ public class SolutionSearch
             }
             vOffset = 0;
         }
-
 
         return board;
     }
