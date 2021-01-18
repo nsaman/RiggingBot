@@ -50,7 +50,8 @@ public class SolutionSearch
                     board[y][x] == null || board[y][x + 1] == null ||
                     board[y][x] == CrabPiece.INSTANCE || board[y][x + 1] == CrabPiece.INSTANCE ||
                     board[y][x] == NullPiece.INSTANCE || board[y][x + 1] == NullPiece.INSTANCE ||
-                    board[y][x] == FuturePiece.INSTANCE || board[y][x + 1] == FuturePiece.INSTANCE
+                    board[y][x] == FuturePiece.INSTANCE || board[y][x + 1] == FuturePiece.INSTANCE ||
+                    (board[y][x] == JellyfishPiece.INSTANCE && board[y][x + 1] == JellyfishPiece.INSTANCE)
             ){
                 continue;
             }
@@ -136,6 +137,31 @@ public class SolutionSearch
                                 initialScore += 1;
                             }
                 }
+                Solution solution = new Solution(initialScore / 2, new ArrayList<>());
+
+                tickBoard(cleanBoard);
+                solution.setScore(solution.getScore() + handleBoardClearing(board));
+
+                bestSwap = findBestChildSwap(bestSwap, x, y, solution, depth);
+            }
+            // Jellyfish
+            else if (board[y][x] == JellyfishPiece.INSTANCE || board[y][x + 1] == JellyfishPiece.INSTANCE) {
+                for(int k = 0; k < board.length; k++)
+                {
+                    System.arraycopy(board[k], 0, cleanBoard[k], 0, board[0].length);
+                }
+
+                boolean isLeft = cleanBoard[y][x] == JellyfishPiece.INSTANCE;
+                Piece clearedPiece = isLeft ? cleanBoard[y][x + 1] : cleanBoard[y][x];
+
+                int initialScore = 0;
+                for(int currentY = 0; currentY < board.length; currentY++)
+                    for(int currentX = 0; currentX < board[0].length; currentX++)
+                        if(cleanBoard[currentY][currentX] == clearedPiece) {
+                            initialScore+=1;
+                            cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
+                        }
+
                 Solution solution = new Solution(initialScore / 2, new ArrayList<>());
 
                 tickBoard(cleanBoard);
