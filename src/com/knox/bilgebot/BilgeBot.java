@@ -14,6 +14,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.knox.bilgebot.PieceSearch.PIECES_PER_COL;
+import static com.knox.bilgebot.PieceSearch.PIECES_PER_ROW;
+
 /**
  * The base of the bot that decides what action needs to be done
  */
@@ -288,7 +291,8 @@ public class BilgeBot
         }
 
         PieceSearch pieceSearch = new PieceSearch(puzzleCapture);
-        Piece[][] pieces = pieceSearch.searchPieces();
+        Piece[][] pieces = new Piece[PIECES_PER_COL][PIECES_PER_ROW];
+        int waterLevel = pieceSearch.searchPieces(pieces);
         //pieceSearch.retrieveColors();
 
         overlayFrame.setPuzzlePieces(pieces);
@@ -321,9 +325,9 @@ public class BilgeBot
                 overlayFrame.setSolution(null);
                 System.out.println("Searching for new swaps...");
                 status.setStatus("Searching for new swaps");
-                SolutionSearch solutionSearch = new SolutionSearch(pieces, 0, 0, 72);
+                SolutionSearch solutionSearch = new SolutionSearch(pieces, 0, 0, 72, waterLevel);
                 long searchTime = System.currentTimeMillis();
-                swapQueue = solutionSearch.searchDepthThreads(numThreads, depth);
+                swapQueue = solutionSearch.searchDepthThreads(numThreads, depth, waterLevel);
                 status.log("Search time: " + (System.currentTimeMillis() - searchTime));
                 System.out.println("Search time: " + (System.currentTimeMillis() - searchTime));
                 String swapString = "";
@@ -336,7 +340,7 @@ public class BilgeBot
                 status.log("Swap String: " + swapString);
                 System.out.println(swapString);
                 pieceSearch = new PieceSearch(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 285, 555)));
-                pieces = pieceSearch.searchPieces(); //Research since the board could have changed while processing
+                pieceSearch.searchPieces(pieces); //Research since the board could have changed while processing
             }
 
             if(swapQueue.get(0).getXPos() == -1)

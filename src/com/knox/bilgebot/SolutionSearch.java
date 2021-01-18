@@ -16,12 +16,13 @@ public class SolutionSearch
     private Piece[][] cleanBoard;
     private int depth;
     private int startIndex;
-    private int endIndex; //exclusive
+    private int endIndex;
+    private int waterLevel;
 
-    public SolutionSearch(final Piece[][] board, int depth, int startIndex, int endIndex)
+    public SolutionSearch(final Piece[][] board, int depth, int startIndex, int endIndex, int waterLevel)
     {
         this.board = new Piece[board.length][board[0].length];
-        for (int i = 0; i < board.length; i++) //Copy array
+        for (int i = 0; i < board.length; i++)
         {
             for (int j = 0; j < board[0].length; j++)
             {
@@ -32,6 +33,7 @@ public class SolutionSearch
         this.depth = depth;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
+        this.waterLevel = waterLevel;
     }
 
     public List<Swap> searchDepth(int depth)
@@ -83,8 +85,8 @@ public class SolutionSearch
 
                     solution = ScoreSearch.searchAndRemove(cleanBoard,x,y);
                     if (solution.getScore() > 0) {
-                        SolutionSearch.tickBoard(cleanBoard);
-                        solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
+                        int crabPoints = SolutionSearch.tickBoard(cleanBoard, waterLevel);
+                        solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
                     }
                     bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
                 } else {
@@ -129,8 +131,8 @@ public class SolutionSearch
                 }
                 Solution solution = new Solution(initialScore / 2, new ArrayList<>());
 
-                tickBoard(cleanBoard);
-                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
+                int crabPoints = tickBoard(cleanBoard, waterLevel);
+                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
 
                 bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
             }
@@ -151,8 +153,8 @@ public class SolutionSearch
 
                 Solution solution = new Solution(initialScore / 2, new ArrayList<>());
 
-                tickBoard(cleanBoard);
-                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard));
+                int crabPoints = tickBoard(cleanBoard, waterLevel);
+                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
 
                 bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth);
             }
@@ -161,7 +163,7 @@ public class SolutionSearch
         return bestSwap;
     }
 
-    public List<Swap> searchDepthThreads(int numThreads, int depth)
+    public List<Swap> searchDepthThreads(int numThreads, int depth, int waterLevel)
     {
         int segmentSize = (board.length * board[0].length) / numThreads;
 
@@ -172,11 +174,11 @@ public class SolutionSearch
             SolutionSearch solutionSearch;
             if(i == numThreads - 1)
             {
-                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, board.length * board[0].length);
+                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, board.length * board[0].length, waterLevel);
             }
             else
             {
-                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, (i + 1) * segmentSize);
+                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, (i + 1) * segmentSize, waterLevel);
             }
             threads[i] = new SolutionSearchThread(solutionSearch, depth);
             threads[i].start();
@@ -215,12 +217,11 @@ public class SolutionSearch
         {
             tempSolution = ScoreSearch.searchAndRemove(currentBoard,-1,-1);
             if(tempSolution.getScore() > 0) {
-                totalScore += Math.min(tempSolution.getScore(), 7);
-                SolutionSearch.tickBoard(cleanBoard);
+                totalScore += Math.min(tempSolution.getScore(), 7) / 3;
+                totalScore += SolutionSearch.tickBoard(cleanBoard, waterLevel);
                 currentBoard = cleanBoard;
             }
         } while (tempSolution.getScore() > 0);
-        totalScore /= 3;
         return totalScore;
     }
 
@@ -237,7 +238,7 @@ public class SolutionSearch
         // if not at leaves, find the best swaps of children
         if (depth > 1)
         {
-            SolutionSearch solDepthSearch = new SolutionSearch(sourceBoard, depth - 1, 0, 72);
+            SolutionSearch solDepthSearch = new SolutionSearch(sourceBoard, depth - 1, 0, 72, waterLevel);
             currentSwaps = solDepthSearch.searchDepth(depth - 1);
         }
 
@@ -268,9 +269,10 @@ public class SolutionSearch
         board[yPos][xPos + 1] = tempPiece;
     }
 
-    public static Piece[][] tickBoard(Piece[][] board)
+    public static int tickBoard(Piece[][] board, int waterLevel)
     {
         int vOffset = 0;
+        int totalScore = 0;
         for (int x = 0; x < board[0].length; x++)
         {
             for (int y = 0; y < board.length; y++)
@@ -279,11 +281,16 @@ public class SolutionSearch
                 {
                     vOffset++;
                 }
+                else if (board[y][x] == CrabPiece.INSTANCE && y < waterLevel)
+                {
+                    totalScore += 5;
+                    vOffset++;
+                }
                 else
                 {
                     board[y - vOffset][x] = board[y][x];
                 }
-                if(y >= board.length - vOffset) //TODO: verify correct?
+                if(y >= board.length - vOffset)
                 {
                     board[y][x] = NullPiece.INSTANCE;
                 }
@@ -291,7 +298,7 @@ public class SolutionSearch
             vOffset = 0;
         }
 
-        return board;
+        return totalScore;
     }
 
     public static void printBoard(Piece[][] board)

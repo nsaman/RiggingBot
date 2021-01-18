@@ -45,6 +45,10 @@ public abstract class Piece
         return color.equals(centerColor) || color.equals(centerColorWater);
     }
 
+    public boolean isUnderWater(Color color) {
+        return color.equals(centerColorWater);
+    }
+
     public Color getCenterColor()
     {
         return centerColor;

@@ -21,9 +21,9 @@ public class PieceSearch
         screenCapture = image;
     }
 
-    public Piece[][] searchPieces()
+    public int searchPieces(Piece[][] pieces)
     {
-        Piece[][] pieces = new Piece[PIECES_PER_COL][PIECES_PER_ROW];
+        int waterLevel = 8;
 
         for(int y = 0; y < PIECES_PER_COL; y++)
         {
@@ -37,7 +37,11 @@ public class PieceSearch
                 {
                     if(StandardPiece.pieces.get(i).isColorPiece(color))
                     {
-                        pieces[y][x] = StandardPiece.pieces.get(i);
+                        Piece piece = StandardPiece.pieces.get(i);
+                        pieces[y][x] = piece;
+                        if (piece.isUnderWater(color) && y < waterLevel) {
+                            waterLevel = y;
+                        }
                     }
                 }
                 if(pieces[y][x] == null)
@@ -61,7 +65,7 @@ public class PieceSearch
             }
         }
 
-        return pieces;
+        return waterLevel;
     }
 
     public void retrieveColors()
@@ -81,8 +85,8 @@ public class PieceSearch
     }
 
     private final static int BORDER_WIDTH = 7;
-    private final static int PIECES_PER_ROW = 6;
-    private final static int PIECES_PER_COL = 12;
+    public final static int PIECES_PER_ROW = 6;
+    public final static int PIECES_PER_COL = 12;
     private final static int PIECE_LENGTH = 45;
     private final static int PIECE_OFFSET = -3;
 }
