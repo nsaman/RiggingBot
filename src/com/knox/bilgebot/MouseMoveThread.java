@@ -146,7 +146,7 @@ public class MouseMoveThread extends Thread
         _a = (y - _k) / (Math.pow(x - _h, 2));
 
         netDistance = Math.sqrt(Math.pow(destX - initX, 2) + Math.pow(destY - initY, 2));
-        totalMoveTime = (long) (netDistance * 2 + 300);
+        totalMoveTime = (long) (netDistance/2 + 75);
         hasMove = true;
 
         return totalMoveTime;
