@@ -86,9 +86,12 @@ public class SolutionSearch
                     (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
                 ) {
 
-                    ScoreSearch scoreSearch = new ScoreSearch(board);
-                    solution = scoreSearch.search(x,y);
-                    solution.setScore(solution.getScore() + handleBoardClearing(board));
+                    solution = ScoreSearch.search(board,x,y);
+                    if (solution.getScore() > 0) {
+                        ScoreSearch.searchAndRemove(cleanBoard);
+                        SolutionSearch.tickBoard(cleanBoard);
+                        solution.setScore(solution.getScore() + handleBoardClearing(board));
+                    }
                 } else {
                     solution = new Solution(0, new ArrayList<>());
                 }
@@ -209,16 +212,18 @@ public class SolutionSearch
     }
 
     private int handleBoardClearing(Piece[][] workingBoard){
-        ScoreSearch scoreSearch = new ScoreSearch(workingBoard);
+        Piece[][] currentBoard = workingBoard;
         Solution tempSolution;
         int totalScore = 0;
-        while ((tempSolution = scoreSearch.search(-1, -1)).getScore() > 0) //Keep summing score until board is clean
+        //Keep summing score until board is clean
+        do
         {
+            tempSolution = ScoreSearch.search(currentBoard,-1,-1);
             totalScore += Math.min(tempSolution.getScore(), 7);
-            cleanBoard = ScoreSearch.searchAndRemove(cleanBoard);
-            cleanBoard = SolutionSearch.tickBoard(cleanBoard);
-            scoreSearch = new ScoreSearch(cleanBoard);
-        }
+            ScoreSearch.searchAndRemove(cleanBoard);
+            SolutionSearch.tickBoard(cleanBoard);
+            currentBoard = cleanBoard;
+        } while (tempSolution.getScore() > 0);
         totalScore /= 3;
         return totalScore;
     }

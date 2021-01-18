@@ -11,14 +11,8 @@ import java.util.List;
  */
 public class ScoreSearch
 {
-    private Piece[][] board;
 
-    public ScoreSearch(Piece[][] board)
-    {
-        this.board = board;
-    }
-
-    public Solution search(int swapX, int swapY)
+    public static Solution search(Piece[][] board, int swapX, int swapY)
     {
         int yMin = 0;
         int yMax = board.length - 1;
