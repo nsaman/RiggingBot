@@ -61,7 +61,7 @@ public class BilgeBot
         status.log("Bilge Bot initializing...");
         status.setStatus("Initializing");
 
-        numThreads = 8;
+        numThreads = Runtime.getRuntime().availableProcessors() * 2 - 1;
         status.log("Found " + numThreads + " processors; will run " + numThreads + " threads");
 
         try
