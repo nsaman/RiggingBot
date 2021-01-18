@@ -23,7 +23,7 @@ public class TickThread extends Thread
         {
             try
             {
-                sleep(0);
+                sleep(10);
             } catch (InterruptedException e)
             {
                 //do nothing
