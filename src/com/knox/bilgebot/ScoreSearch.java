@@ -1,9 +1,6 @@
 package com.knox.bilgebot;
 
-import com.knox.bilgebot.piece.FuturePiece;
-import com.knox.bilgebot.piece.NullPiece;
-import com.knox.bilgebot.piece.Piece;
-import com.knox.bilgebot.piece.StandardPiece;
+import com.knox.bilgebot.piece.*;
 import com.knox.bilgebot.solution.*;
 
 import java.util.ArrayList;
@@ -39,27 +36,32 @@ public class ScoreSearch
 
         List<Integer> combos = new ArrayList<>();
 
+        int clearedValue = 0;
         // for each horizontal
         for (int y = yMin; y < yMax + 1; y++) {
-            Piece previosPieceType = null;
+            Piece previousPieceType = null;
             int previousPieceCount = 0;
             for (int x = xMin; x < xMax + 1; x++) {
                 // new pieces drawn seen as null
                 if(board[y][x] == null) {
-                    if(previousPieceCount >= 3)
+                    if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
-                    previosPieceType = null;
+                        clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+                    }
+                    previousPieceType = null;
                     previousPieceCount = 0;
                 } else {
                     Piece currentPiece = board[y][x];
                     // if the previous piece did not match, reset the counts
-                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE ||
-                            previosPieceType == null || previosPieceType == NullPiece.INSTANCE ||
-                            currentPiece.getClass() != previosPieceType.getClass()) {
-                        if(previousPieceCount >= 3)
+                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                            previousPieceType == null || previousPieceType == NullPiece.INSTANCE || previousPieceType == CrabPiece.INSTANCE || previousPieceType == BlowfishPiece.INSTANCE || previousPieceType == JellyfishPiece.INSTANCE ||
+                            currentPiece.getClass() != previousPieceType.getClass()) {
+                        if(previousPieceCount >= 3) {
                             combos.add(previousPieceCount);
+                            clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+                        }
 
-                        previosPieceType = currentPiece;
+                        previousPieceType = currentPiece;
                         previousPieceCount = 1;
 
                         // short circuit if we cannot make a combo anymore
@@ -73,8 +75,10 @@ public class ScoreSearch
                 }
             }
             // add the combo at the end
-            if(previousPieceCount >= 3)
+            if(previousPieceCount >= 3) {
                 combos.add(previousPieceCount);
+                clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+            }
         }
 
         // for each vertical
@@ -84,18 +88,22 @@ public class ScoreSearch
             for (int y = yMin; y < yMax + 1; y++) {
                 // new pieces drawn seen as null
                 if(board[y][x] == null) {
-                    if(previousPieceCount >= 3)
+                    if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
+                        clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+                    }
                     previousPieceType = null;
                     previousPieceCount = 0;
                 } else {
                     Piece currentPiece = board[y][x];
                     // if the previous piece did not match, reset the counts
-                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE ||
-                            previousPieceType == null || previousPieceType == NullPiece.INSTANCE ||
+                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                            previousPieceType == null || previousPieceType == NullPiece.INSTANCE || previousPieceType == CrabPiece.INSTANCE || previousPieceType == BlowfishPiece.INSTANCE || previousPieceType == JellyfishPiece.INSTANCE ||
                             currentPiece.getClass() != previousPieceType.getClass()) {
-                        if(previousPieceCount >= 3)
+                        if(previousPieceCount >= 3) {
                             combos.add(previousPieceCount);
+                            clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+                        }
 
                         previousPieceType = currentPiece;
                         previousPieceCount = 1;
@@ -111,11 +119,14 @@ public class ScoreSearch
                 }
             }
             // add the combo at the end
-            if(previousPieceCount >= 3)
+            if(previousPieceCount >= 3) {
                 combos.add(previousPieceCount);
+                clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+            }
         }
 
-        return new Solution(combos.size() == 0 ? 0 : combos.size() * combos.stream().reduce(0, (a, b) -> a + b), combos);
+        // https://yppedia.puzzlepirates.com/Bilge_scoring
+        return new Solution(combos.size() == 0 ? 0 : combos.size() * clearedValue, combos);
     }
 
     public static Piece[][] searchAndRemove(Piece[][] board)
