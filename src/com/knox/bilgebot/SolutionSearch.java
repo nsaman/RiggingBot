@@ -48,8 +48,7 @@ public class SolutionSearch
                     board[y][x] == null || board[y][x + 1] == null ||
                     board[y][x] == CrabPiece.INSTANCE || board[y][x + 1] == CrabPiece.INSTANCE ||
                     board[y][x] == NullPiece.INSTANCE || board[y][x + 1] == NullPiece.INSTANCE ||
-                    board[y][x] == FuturePiece.INSTANCE || board[y][x + 1] == FuturePiece.INSTANCE ||
-                    (board[y][x] == JellyfishPiece.INSTANCE && board[y][x + 1] == JellyfishPiece.INSTANCE)
+                    board[y][x] == board[y][x + 1]
             ){
                 continue;
             }
@@ -57,10 +56,6 @@ public class SolutionSearch
             // two normal pieces
             if (board[y][x] instanceof StandardPiece && board[y][x + 1] instanceof StandardPiece)
             {
-                if(board[y][x].equals(board[y][x + 1]))
-                {
-                    continue;
-                }
                 swapAdjacent(x, y);
 
                 int totalScore = 0;
