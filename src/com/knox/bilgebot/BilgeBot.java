@@ -333,6 +333,7 @@ public class BilgeBot
                     swapString += swap;
                     swapString += " ";
                 }
+                status.log("Swap String: " + swapString);
                 System.out.println(swapString);
                 pieceSearch = new PieceSearch(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 285, 555)));
                 pieces = pieceSearch.searchPieces(); //Research since the board could have changed while processing
