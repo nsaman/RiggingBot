@@ -324,6 +324,7 @@ public class BilgeBot
                 SolutionSearch solutionSearch = new SolutionSearch(pieces, 0, 0, 72);
                 long searchTime = System.currentTimeMillis();
                 swapQueue = solutionSearch.searchDepthThreads(numThreads, depth);
+                status.log("Search time: " + (System.currentTimeMillis() - searchTime));
                 System.out.println("Search time: " + (System.currentTimeMillis() - searchTime));
                 String swapString = "";
                 for (Swap swap : swapQueue)
