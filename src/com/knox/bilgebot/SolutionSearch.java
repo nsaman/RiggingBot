@@ -257,7 +257,7 @@ public class SolutionSearch
         int sum = 0;
         for(int i = 0; i < swaps.size(); i++)
         {
-            sum += swaps.get(i).getScore() * (1 - (.05 * i));
+            sum += swaps.get(i).getScore() * (1 - (.075 * i));
         }
         return sum;
     }
