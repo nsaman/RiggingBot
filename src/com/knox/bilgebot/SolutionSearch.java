@@ -204,15 +204,8 @@ public class SolutionSearch
     }
 
     private void copyToCleanBoard(Piece[][] board) {
-        if(cleanBoard == null)
-            cleanBoard = new Piece[board.length][board[0].length];
-        for (int i = 0; i < board.length; i++)
-        {
-            for (int j = 0; j < board[0].length; j++)
-            {
-                cleanBoard[i][j] = board[i][j];
-            }
-        }
+        // though this is creatig a new array[][] every time it has tested to be faster. Java limitation
+        cleanBoard = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
     }
 
     private int handleBoardClearing(Piece[][] workingBoard){
