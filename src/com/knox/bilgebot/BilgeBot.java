@@ -7,9 +7,7 @@ import com.knox.bilgebot.piece.Piece;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +62,7 @@ public class BilgeBot
         status.log("Bilge Bot initializing...");
         status.setStatus("Initializing");
 
-        numThreads = Runtime.getRuntime().availableProcessors() * 2 - 1;
+        numThreads = Runtime.getRuntime().availableProcessors();
         status.log("Found " + numThreads + " processors; will run " + numThreads + " threads");
 
         try
@@ -325,7 +323,7 @@ public class BilgeBot
                 overlayFrame.setSolution(null);
                 System.out.println("Searching for new swaps...");
                 status.setStatus("Searching for new swaps");
-                SolutionSearch solutionSearch = new SolutionSearch(pieces, 0, 0, 72, waterLevel);
+                SolutionSearch solutionSearch = new SolutionSearch(pieces, 0, 72, waterLevel);
                 long searchTime = System.currentTimeMillis();
                 swapQueue = solutionSearch.searchDepthThreads(numThreads, depth, waterLevel);
                 status.log("Search time: " + (System.currentTimeMillis() - searchTime));

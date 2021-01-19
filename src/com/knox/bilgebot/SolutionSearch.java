@@ -14,23 +14,22 @@ public class SolutionSearch
 {
     private Piece[][] board;
     private Piece[][] cleanBoard;
-    private int depth;
     private int startIndex;
     private int endIndex;
     private int waterLevel;
+    SolutionSearch childSearcher;
 
-    public SolutionSearch(final Piece[][] board, int depth, int startIndex, int endIndex, int waterLevel)
+    public SolutionSearch(final Piece[][] board, int startIndex, int endIndex, int waterLevel)
     {
-        this.board = new Piece[board.length][board[0].length];
-        for (int i = 0; i < board.length; i++)
-        {
-            for (int j = 0; j < board[0].length; j++)
-            {
-                this.board[i][j] = board[i][j];
-            }
-        }
+        this.board = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
         cleanBoard = new Piece[board.length][board[0].length];
-        this.depth = depth;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+        this.waterLevel = waterLevel;
+    }
+
+    public void resetWith(final Piece[][] board, int depth, int startIndex, int endIndex, int waterLevel) {
+        this.board = board;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
         this.waterLevel = waterLevel;
@@ -174,11 +173,11 @@ public class SolutionSearch
             SolutionSearch solutionSearch;
             if(i == numThreads - 1)
             {
-                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, board.length * board[0].length, waterLevel);
+                solutionSearch = new SolutionSearch(board, i * segmentSize, board.length * board[0].length, waterLevel);
             }
             else
             {
-                solutionSearch = new SolutionSearch(board, 0, i * segmentSize, (i + 1) * segmentSize, waterLevel);
+                solutionSearch = new SolutionSearch(board, i * segmentSize, (i + 1) * segmentSize, waterLevel);
             }
             threads[i] = new SolutionSearchThread(solutionSearch, depth);
             threads[i].start();
@@ -205,7 +204,15 @@ public class SolutionSearch
     }
 
     private void copyToCleanBoard(Piece[][] board) {
-        cleanBoard = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
+        if(cleanBoard == null)
+            cleanBoard = new Piece[board.length][board[0].length];
+        for (int i = 0; i < board.length; i++)
+        {
+            for (int j = 0; j < board[0].length; j++)
+            {
+                cleanBoard[i][j] = board[i][j];
+            }
+        }
     }
 
     private int handleBoardClearing(Piece[][] workingBoard){
@@ -238,8 +245,11 @@ public class SolutionSearch
         // if not at leaves, find the best swaps of children
         if (depth > 1)
         {
-            SolutionSearch solDepthSearch = new SolutionSearch(sourceBoard, depth - 1, 0, 72, waterLevel);
-            currentSwaps = solDepthSearch.searchDepth(depth - 1);
+            if(childSearcher == null)
+                childSearcher = new SolutionSearch(sourceBoard, 0, 72, waterLevel);
+            else
+                childSearcher.resetWith(sourceBoard, depth - 1, 0, 72, waterLevel);
+            currentSwaps = childSearcher.searchDepth(depth - 1);
         }
 
         currentSwaps.add(0, new Swap(x,y,solution));

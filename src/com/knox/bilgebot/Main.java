@@ -24,26 +24,7 @@ public class Main
         {
         }
 
-        BilgeBot bilgeBot = new BilgeBot();
-
-
-/*        Piece[][] board = {
-                {new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece()},
-                {new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece()},
-                {new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece()},
-                {new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece()},
-                {new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece()},
-                {new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece()},
-                {new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece()},
-                {new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece()},
-                {new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece(), new PentagonPiece()},
-                {new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece(), new ShellPiece()},
-                {new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece(), new TealMarblePiece()},
-                {new TealMarblePiece(), new ShellPiece(), new PentagonPiece(), new CyanMarblePiece(), new CyanBrickPiece(), new BlueBrickPiece()}
-        };
-
-        SolutionSearchCL solutionSearchCL = new SolutionSearchCL(board, 4);
-        solutionSearchCL.search();*/
+        new BilgeBot();
     }
 
 }
