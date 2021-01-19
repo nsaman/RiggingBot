@@ -38,8 +38,10 @@ public class ScoreSearch
             Piece previousPieceType = null;
             int previousPieceCount = 0;
             for (int x = xMin; x < xMax + 1; x++) {
-                // new pieces drawn seen as null
-                if(board[y][x] == null) {
+            Piece currentPiece = board[y][x];
+                // if the previous piece did not match, reset the counts
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                        currentPiece != previousPieceType) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
                         for (int i = 1; i <= previousPieceCount; i++) {
@@ -47,33 +49,17 @@ public class ScoreSearch
                         }
                         clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                     }
-                    previousPieceType = null;
-                    previousPieceCount = 0;
-                } else {
-                    Piece currentPiece = board[y][x];
-                    // if the previous piece did not match, reset the counts
-                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
-                            previousPieceType == null || previousPieceType == NullPiece.INSTANCE || previousPieceType == CrabPiece.INSTANCE || previousPieceType == BlowfishPiece.INSTANCE || previousPieceType == JellyfishPiece.INSTANCE ||
-                            currentPiece.getClass() != previousPieceType.getClass()) {
-                        if(previousPieceCount >= 3) {
-                            combos.add(previousPieceCount);
-                            for (int i = 1; i <= previousPieceCount; i++) {
-                                removes.add(new IntTuple(y, x - i));
-                            }
-                            clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
-                        }
 
-                        previousPieceType = currentPiece;
-                        previousPieceCount = 1;
+                    previousPieceType = currentPiece;
+                    previousPieceCount = 1;
 
-                        // short circuit if we cannot make a combo anymore
-                        if (board[0].length - x < 3)
-                            break;
-                    }
-                    // else add to the count
-                    else {
-                        previousPieceCount +=1;
-                    }
+                    // short circuit if we cannot make a combo anymore
+                    if (board[0].length - x < 3)
+                        break;
+                }
+                // else add to the count
+                else {
+                    previousPieceCount +=1;
                 }
             }
             // add the combo at the end
@@ -91,8 +77,10 @@ public class ScoreSearch
             Piece previousPieceType = null;
             int previousPieceCount = 0;
             for (int y = yMin; y < yMax + 1; y++) {
-                // new pieces drawn seen as null
-                if(board[y][x] == null) {
+                Piece currentPiece = board[y][x];
+                // if the previous piece did not match, reset the counts
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                        currentPiece != previousPieceType) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
                         for (int i = 1; i <= previousPieceCount; i++) {
@@ -100,33 +88,17 @@ public class ScoreSearch
                         }
                         clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                     }
-                    previousPieceType = null;
-                    previousPieceCount = 0;
-                } else {
-                    Piece currentPiece = board[y][x];
-                    // if the previous piece did not match, reset the counts
-                    if(currentPiece == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
-                            previousPieceType == null || previousPieceType == NullPiece.INSTANCE || previousPieceType == CrabPiece.INSTANCE || previousPieceType == BlowfishPiece.INSTANCE || previousPieceType == JellyfishPiece.INSTANCE ||
-                            currentPiece.getClass() != previousPieceType.getClass()) {
-                        if(previousPieceCount >= 3) {
-                            combos.add(previousPieceCount);
-                            for (int i = 1; i <= previousPieceCount; i++) {
-                                removes.add(new IntTuple(y - i, x));
-                            }
-                            clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
-                        }
 
-                        previousPieceType = currentPiece;
-                        previousPieceCount = 1;
+                    previousPieceType = currentPiece;
+                    previousPieceCount = 1;
 
-                        // short circuit if we cannot make a combo anymore
-                        if (board.length - y < 3)
-                            break;
-                    }
-                    // else add to the count
-                    else {
-                        previousPieceCount +=1;
-                    }
+                    // short circuit if we cannot make a combo anymore
+                    if (board.length - y < 3)
+                        break;
+                }
+                // else add to the count
+                else {
+                    previousPieceCount +=1;
                 }
             }
             // add the combo at the end
