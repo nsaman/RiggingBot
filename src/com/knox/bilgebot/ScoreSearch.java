@@ -34,8 +34,8 @@ public class ScoreSearch
 
         int clearedValue = 0;
 
-        for (int y = yMin; y < yMax; y++) {
-            for (int x = xMin; x < xMax; x++) {
+        for (int y = yMin; y <= yMax; y++) {
+            for (int x = xMin; x <= xMax; x++) {
                 Piece piece = board[y][x];
                 if(piece instanceof StandardPiece) {
                     // if horizontal
