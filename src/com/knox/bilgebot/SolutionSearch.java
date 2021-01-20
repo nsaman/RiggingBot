@@ -47,7 +47,6 @@ public class SolutionSearch
             if (x == 5 ||
                     board[y][x] == null || board[y][x + 1] == null ||
                     board[y][x] == CrabPiece.INSTANCE || board[y][x + 1] == CrabPiece.INSTANCE ||
-                    board[y][x] == NullPiece.INSTANCE || board[y][x + 1] == NullPiece.INSTANCE ||
                     board[y][x] == board[y][x + 1]
             ){
                 continue;
