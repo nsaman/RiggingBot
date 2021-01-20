@@ -38,7 +38,6 @@ public class SolutionSearch
     public List<Swap> searchDepth(int depth)
     {
         List<Swap> bestSwap = null;
-        copyToCleanBoard(board);
 
         for (int i = startIndex; i < endIndex; i++)
         {
@@ -62,7 +61,24 @@ public class SolutionSearch
                 int totalScore = 0;
                 Solution solution;
                 // quick check if there are any series
-                if (ScoreSearch.nearbyRun(board, x, y) || ScoreSearch.nearbyRun(board, x+1, y)) {
+                if (
+                    // left horizontal
+                    (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
+                    // right horizontal
+                    (x < (board[0].length - 3) && board[y][x + 1] == board[y][x + 2] && board[y][x + 1] == board[y][x + 3]) ||
+                    // two above vertical left
+                    (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
+                    // one above, one below vertical left
+                    (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
+                    // two below vertical left
+                    (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]) ||
+                    // two above vertical right
+                    (y > 1 && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y - 2][x + 1]) ||
+                    // one above, one below vertical right
+                    (y > 0 && y < (board.length - 1) && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y + 1][x + 1]) ||
+                    // two below vertical right
+                    (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
+                ) {
                     copyToCleanBoard(board);
 
                     solution = ScoreSearch.searchAndRemove(cleanBoard,x,y);
@@ -75,7 +91,6 @@ public class SolutionSearch
                     solution = new Solution(0, new ArrayList<>());
                     bestSwap = findBestChildSwap(board, bestSwap, x, y, solution, depth);
                 }
-
 
                 swapAdjacent(x, y);
             }
