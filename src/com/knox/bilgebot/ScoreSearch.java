@@ -116,7 +116,7 @@ public class ScoreSearch
         });
 
         // https://yppedia.puzzlepirates.com/Bilge_scoring
-        return new Solution(combos.size() == 0 ? 0 : combos.size() * clearedValue, combos);
+        return new Solution(combos.size() == 0 ? 0 : (int)Math.pow((double)2, combos.size() - 1) * clearedValue, combos);
     }
 
     private static class IntTuple {
