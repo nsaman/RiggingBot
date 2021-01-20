@@ -150,7 +150,7 @@ public class SolutionSearch
                             cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
                         }
 
-                Solution solution = new Solution(initialScore / 2, new ArrayList<>());
+                Solution solution = new Solution(initialScore / 4, new ArrayList<>());
 
                 int crabPoints = tickBoard(cleanBoard, waterLevel);
                 solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
