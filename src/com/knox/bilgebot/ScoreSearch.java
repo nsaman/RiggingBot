@@ -33,50 +33,81 @@ public class ScoreSearch
         List<Integer> combos = new ArrayList<>();
 
         int clearedValue = 0;
-
-        for (int y = yMin; y <= yMax; y++) {
-            for (int x = xMin; x <= xMax; x++) {
-                Piece piece = board[y][x];
-                if(piece instanceof StandardPiece) {
-                    // if horizontal
-                    if(x == 0 || piece != board[y][x - 1]) {
-                        if(x + 2 <= xMax &&
-                                piece == board[y][x + 1] &&
-                                piece == board[y][x + 2]
-                        ) {
-                            removes.add(new IntTuple(y,x));
-                            removes.add(new IntTuple(y,x + 1));
-                            removes.add(new IntTuple(y,x + 2));
-
-                            int xIter = 3;
-                            while(x + xIter < xMax && piece == board[y][x + xIter]) {
-                                removes.add(new IntTuple(y,x + xIter));
-                                xIter++;
-                            }
-                            clearedValue += 3 + (xIter - 3) * 2;
-                            combos.add(xIter);
+        // for each horizontal
+        for (int y = yMin; y < yMax + 1; y++) {
+            Piece previousPieceType = null;
+            int previousPieceCount = 0;
+            for (int x = xMin; x < xMax + 1; x++) {
+            Piece currentPiece = board[y][x];
+                // if the previous piece did not match, reset the counts
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                        currentPiece != previousPieceType) {
+                    if(previousPieceCount >= 3) {
+                        combos.add(previousPieceCount);
+                        for (int i = 1; i <= previousPieceCount; i++) {
+                            removes.add(new IntTuple(y, x - i));
                         }
+                        clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
                     }
-                    // if vertical
-                    if(y == 0 || piece != board[y - 1][x]) {
-                        if (y + 2 <= yMax &&
-                                piece == board[y + 1][x] &&
-                                piece == board[y + 2][x]
-                        ) {
-                            removes.add(new IntTuple(y, x));
-                            removes.add(new IntTuple(y + 1, x));
-                            removes.add(new IntTuple(y + 2, x));
 
-                            int yIter = 3;
-                            while (y + yIter < xMax && piece == board[y + yIter][x]) {
-                                removes.add(new IntTuple(y + yIter, x));
-                                yIter++;
-                            }
-                            clearedValue += 3 + (yIter - 3) * 2;
-                            combos.add(yIter);
-                        }
-                    }
+                    previousPieceType = currentPiece;
+                    previousPieceCount = 1;
+
+                    // short circuit if we cannot make a combo anymore
+                    if (board[0].length - x < 3)
+                        break;
                 }
+                // else add to the count
+                else {
+                    previousPieceCount +=1;
+                }
+            }
+            // add the combo at the end
+            if(previousPieceCount >= 3) {
+                combos.add(previousPieceCount);
+                for (int i = 1; i <= previousPieceCount; i++) {
+                    removes.add(new IntTuple(y, board[0].length - i));
+                }
+                clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+            }
+        }
+
+        // for each vertical
+        for (int x = xMin; x < xMax + 1; x++) {
+            Piece previousPieceType = null;
+            int previousPieceCount = 0;
+            for (int y = yMin; y < yMax + 1; y++) {
+                Piece currentPiece = board[y][x];
+                // if the previous piece did not match, reset the counts
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                        currentPiece != previousPieceType) {
+                    if(previousPieceCount >= 3) {
+                        combos.add(previousPieceCount);
+                        for (int i = 1; i <= previousPieceCount; i++) {
+                            removes.add(new IntTuple(y - i, x));
+                        }
+                        clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
+                    }
+
+                    previousPieceType = currentPiece;
+                    previousPieceCount = 1;
+
+                    // short circuit if we cannot make a combo anymore
+                    if (board.length - y < 3)
+                        break;
+                }
+                // else add to the count
+                else {
+                    previousPieceCount +=1;
+                }
+            }
+            // add the combo at the end
+            if(previousPieceCount >= 3) {
+                combos.add(previousPieceCount);
+                for (int i = 1; i <= previousPieceCount; i++) {
+                    removes.add(new IntTuple(board.length - i, x));
+                }
+                clearedValue += previousPieceCount==3 ? 3 : previousPieceCount==4 ? 5 : 7;
             }
         }
 
@@ -86,22 +117,6 @@ public class ScoreSearch
 
         // https://yppedia.puzzlepirates.com/Bilge_scoring
         return new Solution(combos.size() == 0 ? 0 : combos.size() * clearedValue, combos);
-    }
-
-    public static boolean nearbyRun(Piece[][] board, int x, int y) {
-
-        return  // left horizontal
-                (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
-                // mid horizontal
-                (x > 0 && x < (board[0].length - 1) && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x + 1]) ||
-                // right horizontal
-                (x < (board[0].length - 2) && board[y][x] == board[y][x + 1] && board[y][x] == board[y][x + 2]) ||
-                // two above vertical left
-                (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
-                // one above, one below vertical left
-                (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
-                // two below vertical left
-                (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]);
     }
 
     private static class IntTuple {
