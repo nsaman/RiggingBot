@@ -119,6 +119,18 @@ public class ScoreSearch
         return new Solution(combos.size() == 0 ? 0 : combos.size() * clearedValue, combos);
     }
 
+    public static boolean nearbyRun(Piece[][] board, int x, int y) {
+
+        return  // left horizontal
+                (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
+                // two above vertical left
+                (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
+                // one above, one below vertical left
+                (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
+                // two below vertical left
+                (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]);
+    }
+
     private static class IntTuple {
         private int y;
         private int x;
