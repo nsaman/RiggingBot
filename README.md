@@ -1,4 +1,4 @@
-# BilgeBot
+# Rigging Bot
 This is a bot that automatically solves the bilge puzzle in Puzzle Pirates. Please keep in mind <b>it only works on Windows</b> at the moment. Multi-threaded depth searching is supported, but note that increasing the depth increases the time it takes to compute the next moves exponentially. Each single increase in depth will take approximately 60 times longer than the previous depth.
 
 ### How it works
