@@ -11,6 +11,6 @@ public class NullPiece extends Piece
 
     private NullPiece()
     {
-        super(Color.BLACK, Color.BLACK);
+        super(Color.BLACK);
     }
 }

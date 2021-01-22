@@ -1,14 +1,10 @@
 package com.bilgebot.gui;
 
-import com.bilgebot.BilgeBot;
+import com.bilgebot.RiggingBot;
 import com.bilgebot.InitThread;
 import com.bilgebot.UpdateManager;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Created by Jacob on 7/20/2015.
@@ -24,13 +20,13 @@ public class StatusFrame extends JFrame
     private JCheckBox autoCheckBox;
     private JCheckBox overlayCheckBox;
     private JButton startStopButton;
-    private BilgeBot bilgeBot;
+    private RiggingBot riggingBot;
     private InitThread initThread;
 
-    public StatusFrame(BilgeBot bilgeBot)
+    public StatusFrame(RiggingBot riggingBot)
     {
         super("Big Plays - " + UpdateManager.getVersionString());
-        this.bilgeBot = bilgeBot;
+        this.riggingBot = riggingBot;
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -51,21 +47,21 @@ public class StatusFrame extends JFrame
         });
 
         this.startStopButton.addActionListener(e -> {
-            if(bilgeBot.isRunning())
+            if(riggingBot.isRunning())
             {
                 if(initThread.isAlive())
                 {
-                    bilgeBot.getStatus().log("Killing init thread");
+                    riggingBot.getStatus().log("Killing init thread");
                     initThread.stop(); //this is bad... needs to be fixed... someday
                 }
-                bilgeBot.stop();
-                bilgeBot.getStatus().log("Stopped");
+                riggingBot.stop();
+                riggingBot.getStatus().log("Stopped");
                 startStopButton.setText("Start");
             }
             else
             {
                 startStopButton.setText("Stop");
-                initThread = new InitThread(bilgeBot, (Integer) depthSpinner.getValue(), autoCheckBox.isSelected(), overlayCheckBox.isSelected());
+                initThread = new InitThread(riggingBot, (Integer) depthSpinner.getValue(), autoCheckBox.isSelected(), overlayCheckBox.isSelected());
                 initThread.start();
             }
         });

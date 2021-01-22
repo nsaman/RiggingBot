@@ -5,14 +5,14 @@ package com.bilgebot;
  */
 public class TickThread extends Thread
 {
-    private BilgeBot bilgeBot;
+    private RiggingBot riggingBot;
     private boolean shouldRun;
 
-    public TickThread(BilgeBot bilgeBot)
+    public TickThread(RiggingBot riggingBot)
     {
         super("Bot Tick Thread");
         this.setDaemon(true);
-        this.bilgeBot = bilgeBot;
+        this.riggingBot = riggingBot;
         shouldRun = true;
     }
 
@@ -29,7 +29,7 @@ public class TickThread extends Thread
                 //do nothing
             }
             long initTickTime = System.currentTimeMillis();
-            bilgeBot.tick();
+            riggingBot.tick();
             long tickTime = System.currentTimeMillis() - initTickTime;
             if (tickTime > 30)
             {
@@ -37,7 +37,7 @@ public class TickThread extends Thread
             }
         }
 
-        bilgeBot.getStatus().log("Tick thread shutting down");
+        riggingBot.getStatus().log("Tick thread shutting down");
     }
 
     public void shutdown()

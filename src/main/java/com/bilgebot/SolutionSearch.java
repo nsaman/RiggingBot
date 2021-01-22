@@ -46,7 +46,6 @@ public class SolutionSearch
 
             if (x == 5 ||
                     board[y][x] == null || board[y][x + 1] == null ||
-                    board[y][x] == CrabPiece.INSTANCE || board[y][x + 1] == CrabPiece.INSTANCE ||
                     board[y][x] == board[y][x + 1]
                     || (x == ignoreX && y == ignoreY)
             ){
@@ -93,67 +92,6 @@ public class SolutionSearch
                 }
 
                 swapAdjacent(x, y);
-            }
-            // pufferfish
-            else if (board[y][x] == BlowfishPiece.INSTANCE || board[y][x + 1] == BlowfishPiece.INSTANCE) {
-                copyToCleanBoard(board);
-
-                boolean isBlowFishLeft = cleanBoard[y][x] == BlowfishPiece.INSTANCE;
-                boolean isBlowFishRight = cleanBoard[y][x + 1] == BlowfishPiece.INSTANCE;
-
-                int initialScore = 0;
-                if(isBlowFishLeft) {
-                    for(int currentY = y - 1; currentY <= y + 1; currentY++)
-                        for(int currentX = x - 1; currentX <= x + 1; currentX++)
-                            if(currentY > 0 && currentY < cleanBoard.length - 1 &&
-                                    currentX > 0 && currentX < cleanBoard[0].length - 1 &&
-                                    cleanBoard[currentY][currentX] != null &&
-                                    cleanBoard[currentY][currentX] != FuturePiece.INSTANCE
-                            ) {
-                                cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
-                                initialScore += 1;
-                            }
-                }
-                if(isBlowFishRight) {
-                    for(int currentY = y - 1; currentY <= y + 1; currentY++)
-                        for(int currentX = x; currentX <= x + 2; currentX++)
-                            if(currentY > 0 && currentY < cleanBoard.length - 1 &&
-                                    currentX > 0 && currentX < cleanBoard[0].length - 1 &&
-                                    cleanBoard[currentY][currentX] != null &&
-                                    cleanBoard[currentY][currentX] != FuturePiece.INSTANCE
-                            ) {
-                                cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
-                                initialScore += 1;
-                            }
-                }
-                Solution solution = new Solution(initialScore / 2, new ArrayList<>());
-
-                int crabPoints = tickBoard(cleanBoard, waterLevel);
-                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
-
-                bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth, false);
-            }
-            // Jellyfish
-            else if (board[y][x] == JellyfishPiece.INSTANCE || board[y][x + 1] == JellyfishPiece.INSTANCE) {
-                copyToCleanBoard(board);
-
-                boolean isLeft = cleanBoard[y][x] == JellyfishPiece.INSTANCE;
-                Piece clearedPiece = isLeft ? cleanBoard[y][x + 1] : cleanBoard[y][x];
-
-                int initialScore = 0;
-                for(int currentY = 0; currentY < board.length; currentY++)
-                    for(int currentX = 0; currentX < board[0].length; currentX++)
-                        if(cleanBoard[currentY][currentX] == clearedPiece) {
-                            initialScore+=1;
-                            cleanBoard[currentY][currentX] = FuturePiece.INSTANCE;
-                        }
-
-                Solution solution = new Solution(initialScore / 4, new ArrayList<>());
-
-                int crabPoints = tickBoard(cleanBoard, waterLevel);
-                solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
-
-                bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth, false);
             }
         }
 
@@ -280,11 +218,6 @@ public class SolutionSearch
             {
                 if (board[y][x] == FuturePiece.INSTANCE)
                 {
-                    vOffset++;
-                }
-                else if (board[y][x] == CrabPiece.INSTANCE && y < waterLevel)
-                {
-                    totalScore += 5;
                     vOffset++;
                 }
                 else

@@ -1,6 +1,5 @@
 package com.bilgebot;
 
-import com.bilgebot.piece.CrabPiece;
 import com.bilgebot.piece.Piece;
 import com.bilgebot.piece.StandardPiece;
 
@@ -12,25 +11,21 @@ import java.awt.image.BufferedImage;
  */
 public class PieceSearch
 {
-    private BufferedImage screenCapture;
 
-
-
-    public PieceSearch(BufferedImage image)
+    public static Board searchPieces(BufferedImage screenCapture)
     {
-        screenCapture = image;
-    }
+        Board board = new Board();
 
-    public int searchPieces(Piece[][] pieces)
-    {
-        int waterLevel = 8;
-
-        for(int y = 0; y < PIECES_PER_COL; y++)
+        for(int y = 0; y < NUM_ROWS; y++)
         {
-            for (int x = 0; x < PIECES_PER_ROW; x++)
+            int pieceCountInRow = CENTER_ROW_COUNT - Math.abs(ROW_OFFSET - y);
+            int yPos = Y_BOARD_OFFSET + PIECE_HEIGHT * y;
+            for (int x = 0; x < pieceCountInRow; x++)
             {
-                int xPos = BORDER_WIDTH + PIECE_LENGTH / 2 + PIECE_LENGTH * x + PIECE_OFFSET;
-                int yPos = BORDER_WIDTH + PIECE_LENGTH / 2 + PIECE_LENGTH * y + PIECE_OFFSET;
+                int rowIdent = (CENTER_ROW_COUNT - pieceCountInRow) / 2;
+                int isEvenPieceOffset = pieceCountInRow % 2 == 1 ? 0 : PIECE_WIDTH / 2;
+
+                int xPos = X_BOARD_OFFSET + rowIdent * PIECE_WIDTH + isEvenPieceOffset + PIECE_WIDTH * x;
                 Color color = new Color(screenCapture.getRGB(xPos, yPos));
 
                 for (int i = 0; i < StandardPiece.pieces.size(); i++)
@@ -38,55 +33,20 @@ public class PieceSearch
                     if(StandardPiece.pieces.get(i).isColorPiece(color))
                     {
                         Piece piece = StandardPiece.pieces.get(i);
-                        pieces[y][x] = piece;
-                        if (piece.isUnderWater(color) && y < waterLevel) {
-                            waterLevel = y;
-                        }
-                    }
-                }
-                if(pieces[y][x] == null)
-                {
-                    for(int i = 0; i < Piece.pieces.size(); i++)
-                    {
-                        if(Piece.pieces.get(i).isColorPiece(color))
-                        {
-                            pieces[y][x] = Piece.pieces.get(i);
-                        }
-                    }
-                    if(pieces[y][x] == null)
-                    {
-                        color = new Color(screenCapture.getRGB(xPos, yPos + 10));
-                        if(CrabPiece.INSTANCE.isColorPiece(color))
-                        {
-                            pieces[y][x] = CrabPiece.INSTANCE;
-                        }
+                        board.getPieces()[y][x] = piece;
                     }
                 }
             }
         }
-
-        return waterLevel;
+        return board;
     }
 
-    public void retrieveColors()
-    {
-        System.out.println("==============================================================");
-        for(int y = 0; y < PIECES_PER_COL; y++)
-        {
-            for (int x = 0; x < PIECES_PER_ROW; x++)
-            {
-                int xPos = BORDER_WIDTH + PIECE_LENGTH / 2 + PIECE_LENGTH * x + PIECE_OFFSET;
-                int yPos = BORDER_WIDTH + PIECE_LENGTH / 2 + PIECE_LENGTH * y + PIECE_OFFSET + 10;
-                Color color = new Color(screenCapture.getRGB(xPos, yPos));
-                //OverlayFrame.INSTANCE.pixelPoints.add(new Point(xPos, yPos));
-                System.out.println("(" + x + ", " + y + "): " + color.getRed() + " " + color.getGreen() + " " + color.getBlue());
-            }
-        }
-    }
-
-    private final static int BORDER_WIDTH = 7;
+    public final static int CENTER_ROW_COUNT = 9;
     public final static int PIECES_PER_ROW = 6;
-    public final static int PIECES_PER_COL = 12;
-    private final static int PIECE_LENGTH = 45;
-    private final static int PIECE_OFFSET = -3;
+    public final static int NUM_ROWS = 9;
+    public final static int ROW_OFFSET = 4;
+    public final static int PIECE_WIDTH = 44;
+    public final static int PIECE_HEIGHT = 38;
+    public final static int X_BOARD_OFFSET = 39;
+    public final static int Y_BOARD_OFFSET = 74;
 }

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public abstract class Piece
 {
     private Color centerColor;
-    private Color centerColorWater;
 
     public static ArrayList<Piece> pieces = populatePieces();
 
@@ -17,17 +16,13 @@ public abstract class Piece
     {
         ArrayList<Piece> pieces = new ArrayList<>();
         pieces.add(0, NullPiece.INSTANCE);
-        pieces.add(BlowfishPiece.INSTANCE);
-        pieces.add(JellyfishPiece.INSTANCE);
-        pieces.add(CrabPiece.INSTANCE);
         pieces.addAll(StandardPiece.populatePieces());
         return pieces;
     }
 
-    public Piece(Color centerColor, Color centerColorWater)
+    public Piece(Color centerColor)
     {
         this.centerColor = centerColor;
-        this.centerColorWater = centerColorWater;
     }
 
     public static byte getPieceIndex(Piece piece)
@@ -42,11 +37,7 @@ public abstract class Piece
 
     public boolean isColorPiece(Color color)
     {
-        return color.equals(centerColor) || color.equals(centerColorWater);
-    }
-
-    public boolean isUnderWater(Color color) {
-        return color.equals(centerColorWater);
+        return color.equals(centerColor);
     }
 
     public Color getCenterColor()

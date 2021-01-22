@@ -2,7 +2,6 @@ package com.bilgebot;
 
 import com.bilgebot.gui.OverlayFrame;
 import com.bilgebot.gui.StatusFrame;
-import com.bilgebot.piece.Piece;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,13 +11,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bilgebot.PieceSearch.PIECES_PER_COL;
-import static com.bilgebot.PieceSearch.PIECES_PER_ROW;
-
 /**
  * The base of the bot that decides what action needs to be done
  */
-public class BilgeBot
+public class RiggingBot
 {
     private static final boolean SKIP_IF_UNKNOWN_PIECE = true;
     private static final int PIECE_LENGTH = 45;
@@ -53,13 +49,13 @@ public class BilgeBot
     /**
      * Loads necessary components and launches the StatusFrame to wait for user instruction
      */
-    public BilgeBot()
+    public RiggingBot()
     {
         this.statusFrame = new StatusFrame(this);
         statusFrame.setVisible(true);
         status = new Status(statusFrame);
 
-        status.log("Bilge Bot initializing...");
+        status.log("Rigging Bot initializing...");
         status.setStatus("Initializing");
 
         numThreads = Runtime.getRuntime().availableProcessors();
@@ -116,30 +112,8 @@ public class BilgeBot
                 return;
             }
         }
-
-        URL selectionCornerWaterUrl = this.getClass().getClassLoader().getResource("selection-corner-underwater.png");
-        if(selectionCornerWaterUrl == null)
-        {
-            status.log("Failed to load selection-corner-underwater.png from JAR", Status.Severity.ERROR);
-        }
-        else
-        {
-            try
-            {
-                selectionCornerWater = ImageIO.read(selectionCornerWaterUrl);
-            } catch (IOException e)
-            {
-                status.log("Failed to load selection-corner-underwater.png: " + e.getMessage());
-                operable = false;
-                e.printStackTrace();
-                return;
-            }
-        }
-
-
         status.log("Done initializing");
         status.setStatus("Waiting to start");
-
 
     }
 
@@ -243,7 +217,7 @@ public class BilgeBot
 
         int adjustedX = exWinMan.getWindowBounds().x + puzzleCoords.x;
         int adjustedY = exWinMan.getWindowBounds().y + puzzleCoords.y;
-        overlayFrame.setImage(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 285, 555)));
+        overlayFrame.setImage(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530)));
 
         puzzlePosition = puzzleCoords;
 
@@ -275,47 +249,24 @@ public class BilgeBot
         int adjustedX = exWinMan.getWindowBounds().x + puzzlePosition.x;
         int adjustedY = exWinMan.getWindowBounds().y + puzzlePosition.y;
 
-        BufferedImage puzzleCapture = robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 285, 555));
+        BufferedImage puzzleCapture = robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530));
         ImageSearch imageSearch = new ImageSearch(puzzleCapture, selectionCorner);
         Point selectionPos = imageSearch.search();
-        if(selectionPos == null)
-        {
-            imageSearch = new ImageSearch(puzzleCapture, selectionCornerWater);
-            selectionPos = imageSearch.search();
-            if(selectionPos == null)
-            {
-                //do nothing- the selector isn't that important anyways
-            }
-        }
 
-        PieceSearch pieceSearch = new PieceSearch(puzzleCapture);
-        Piece[][] pieces = new Piece[PIECES_PER_COL][PIECES_PER_ROW];
-        int waterLevel = pieceSearch.searchPieces(pieces);
-        //pieceSearch.retrieveColors();
+        Board board = PieceSearch.searchPieces(puzzleCapture);
 
-        overlayFrame.setPuzzlePieces(pieces);
+        overlayFrame.setBoard(board);
         overlayFrame.setSelectorPosition(selectionPos);
         overlayFrame.setImage(puzzleCapture);
 
-        if(isAnyNull(pieces)) //Prevents the bot from making moves while the board isn't settled
+        if(isAnyNull(board.getPieces())) //Prevents the bot from making moves while the board isn't settled
         {
             status.setStatus("Waiting for board to clear");
             return;
         }
 
-        /*if(!autoMode)
-        {
-            if(prevBoard == null)
-            {
-                prevBoard = new Piece[pieces.length][pieces[0].length];
-                copy2dArray(pieces, prevBoard);
-            }
-
-
-        }*/
-
         //Automode swapping
-        if(autoMode && System.currentTimeMillis() - lastSwapTime > 250 && ! mouseMoveThread.hasMove())
+        /*if(autoMode && System.currentTimeMillis() - lastSwapTime > 250 && ! mouseMoveThread.hasMove())
         {
 
             if (true) //swapQueue.isEmpty()) //Finds a move if one is needed
@@ -337,7 +288,7 @@ public class BilgeBot
                 }
                 status.log("Swap String: " + swapString);
                 System.out.println(swapString);
-                pieceSearch = new PieceSearch(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 285, 555)));
+                pieceSearch = new PieceSearch(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530)));
                 pieceSearch.searchPieces(pieces); //Research since the board could have changed while processing
             }
 
@@ -357,7 +308,7 @@ public class BilgeBot
 
                 overlayFrame.setSolution(new Point(swap.getXPos(), swap.getYPos()));
             }
-        }
+        }*/
     }
 
 
@@ -371,12 +322,9 @@ public class BilgeBot
         if(SKIP_IF_UNKNOWN_PIECE)
         {
 
-            for (int i = 0; i < objects.length; i++)
-            {
-                for (int j = 0; j < objects[0].length; j++)
-                {
-                    if(objects[i][j] == null)
-                    {
+            for (Object[] object : objects) {
+                for (int j = 0; j < objects[0].length; j++) {
+                    if (object[j] == null) {
                         return true;
                     }
                 }

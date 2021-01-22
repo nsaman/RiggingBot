@@ -24,7 +24,7 @@ public class Main
         {
         }
 
-        new BilgeBot();
+        new RiggingBot();
     }
 
 }

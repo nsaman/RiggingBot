@@ -5,16 +5,16 @@ package com.bilgebot;
  */
 public class InitThread extends Thread
 {
-    private final BilgeBot bilgeBot;
+    private final RiggingBot riggingBot;
     private boolean overlay;
     private int depth;
     private boolean auto;
 
-    public InitThread(BilgeBot bilgeBot, int depth, boolean auto, boolean overlay)
+    public InitThread(RiggingBot riggingBot, int depth, boolean auto, boolean overlay)
     {
         super("Bilge Bot init thread");
         this.setDaemon(true);
-        this.bilgeBot = bilgeBot;
+        this.riggingBot = riggingBot;
         this.depth = depth;
         this.auto = auto;
         this.overlay = overlay;
@@ -23,6 +23,6 @@ public class InitThread extends Thread
     @Override
     public void run()
     {
-        bilgeBot.init(depth, auto, overlay);
+        riggingBot.init(depth, auto, overlay);
     }
 }

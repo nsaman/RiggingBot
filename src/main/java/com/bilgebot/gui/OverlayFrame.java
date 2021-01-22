@@ -1,7 +1,9 @@
 package com.bilgebot.gui;
 
+import com.bilgebot.Board;
 import com.bilgebot.ExternalWindowManager;
 import com.bilgebot.piece.Piece;
+import lombok.Setter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +27,8 @@ public class OverlayFrame extends JFrame
     private final static int SELECTOR_WIDTH = 90;
     private final static int SELECTOR_HEIGHT = 45;
 
-    private Piece[][] puzzlePieces;
+    @Setter
+    private Board board;
 
     private CursorTrackingThread cursorTrackingThread;
 
@@ -33,7 +36,7 @@ public class OverlayFrame extends JFrame
     {
         cursorTrackingThread = new CursorTrackingThread(x, y, exWinMan, this);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setSize(300, 590);
+        this.setSize(429, 530);
         this.setContentPane(new ImagePanel());
     }
 
@@ -75,23 +78,23 @@ public class OverlayFrame extends JFrame
                 g.fillRect(selectorX, selectorY, SELECTOR_WIDTH, SELECTOR_HEIGHT);
             }
 
-            if(puzzlePieces != null)
-            {
-                for(int y = 0; y < PIECES_PER_COL; y++)
-                {
-                    for(int x = 0; x < PIECES_PER_ROW; x++)
-                    {
-                        if(puzzlePieces[y][x] != null)
-                        {
-                            int xPos = BORDER_WIDTH + x * PIECE_LENGTH;
-                            int yPos = BORDER_WIDTH + y * PIECE_LENGTH;
-
-                            Color origColor = puzzlePieces[y][x].getCenterColor();
-                            drawOutlineRect(g, origColor, xPos, yPos, PIECE_LENGTH, PIECE_LENGTH);
-                        }
-                    }
-                }
-            }
+//            if(puzzlePieces != null)
+//            {
+//                for(int y = 0; y < PIECES_PER_COL; y++)
+//                {
+//                    for(int x = 0; x < PIECES_PER_ROW; x++)
+//                    {
+//                        if(puzzlePieces[y][x] != null)
+//                        {
+//                            int xPos = BORDER_WIDTH + x * PIECE_LENGTH;
+//                            int yPos = BORDER_WIDTH + y * PIECE_LENGTH;
+//
+//                            Color origColor = puzzlePieces[y][x].getCenterColor();
+//                            drawOutlineRect(g, origColor, xPos, yPos, PIECE_LENGTH, PIECE_LENGTH);
+//                        }
+//                    }
+//                }
+//            }
 
             if(solutionPoint != null)
             {
@@ -128,11 +131,6 @@ public class OverlayFrame extends JFrame
     {
         this.solutionPoint = point;
         this.repaint();
-    }
-
-    public void setPuzzlePieces(Piece[][] puzzlePieces)
-    {
-        this.puzzlePieces = puzzlePieces;
     }
 
     public synchronized void setCursorPos(int x, int y)

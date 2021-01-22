@@ -40,7 +40,7 @@ public class ScoreSearch
             for (int x = xMin; x < xMax + 1; x++) {
             Piece currentPiece = board[y][x];
                 // if the previous piece did not match, reset the counts
-                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE ||
                         currentPiece != previousPieceType) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);
@@ -79,7 +79,7 @@ public class ScoreSearch
             for (int y = yMin; y < yMax + 1; y++) {
                 Piece currentPiece = board[y][x];
                 // if the previous piece did not match, reset the counts
-                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE || currentPiece == CrabPiece.INSTANCE || currentPiece == BlowfishPiece.INSTANCE || currentPiece == JellyfishPiece.INSTANCE ||
+                if(previousPieceType == null || currentPiece == NullPiece.INSTANCE ||
                         currentPiece != previousPieceType) {
                     if(previousPieceCount >= 3) {
                         combos.add(previousPieceCount);

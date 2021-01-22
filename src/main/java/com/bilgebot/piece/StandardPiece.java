@@ -10,21 +10,20 @@ public abstract class StandardPiece extends Piece
 {
     public static ArrayList<StandardPiece> pieces = populatePieces();
 
-    public StandardPiece(Color centerColor, Color centerColorWater)
+    public StandardPiece(Color centerColor)
     {
-        super(centerColor, centerColorWater);
+        super(centerColor);
     }
 
     protected static ArrayList<StandardPiece> populatePieces()
     {
         ArrayList<StandardPiece> pieces = new ArrayList<>();
-        pieces.add(BlueBrickPiece.INSTANCE);
-        pieces.add(CyanMarblePiece.INSTANCE);
-        pieces.add(ShellPiece.INSTANCE);
-        pieces.add(TealMarblePiece.INSTANCE);
-        pieces.add(WaveBrickPiece.INSTANCE);
-        pieces.add(CyanBrickPiece.INSTANCE);
-        pieces.add(PentagonPiece.INSTANCE);
+        pieces.add(BlackPiece.INSTANCE);
+        pieces.add(BrownPiece.INSTANCE);
+        pieces.add(DarkBluePiece.INSTANCE);
+        pieces.add(GrayPiece.INSTANCE);
+        pieces.add(LightBluePiece.INSTANCE);
+        pieces.add(YellowPiece.INSTANCE);
         return pieces;
     }
 }
