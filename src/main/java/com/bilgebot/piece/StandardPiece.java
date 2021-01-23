@@ -19,10 +19,12 @@ public abstract class StandardPiece extends Piece
     {
         ArrayList<StandardPiece> pieces = new ArrayList<>();
         pieces.add(BlackPiece.INSTANCE);
+        pieces.add(BluePiece.INSTANCE);
         pieces.add(BrownPiece.INSTANCE);
         pieces.add(DarkBluePiece.INSTANCE);
         pieces.add(GrayPiece.INSTANCE);
         pieces.add(LightBluePiece.INSTANCE);
+        pieces.add(RainbowPiece.INSTANCE);
         pieces.add(YellowPiece.INSTANCE);
         return pieces;
     }
