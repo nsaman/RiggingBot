@@ -22,7 +22,7 @@ public class SolutionSearchThread extends Thread
     @Override
     public void run()
     {
-        swaps = solutionSearch.searchDepth(depth, -1, -1);
+        swaps = solutionSearch.searchDepth(depth);
     }
 
     public List<Swap> getSwaps()

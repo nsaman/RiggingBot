@@ -266,32 +266,31 @@ public class RiggingBot
         }
 
         //Automode swapping
-//        if(autoMode && System.currentTimeMillis() - lastSwapTime > 250 && ! mouseMoveThread.hasMove())
-//        {
-//
-//            if (true) //swapQueue.isEmpty()) //Finds a move if one is needed
-//            {
-//                overlayFrame.setSolution(null);
-//                System.out.println("Searching for new swaps...");
-//                status.setStatus("Searching for new swaps");
-//                SolutionSearch solutionSearch = new SolutionSearch(board, 0, 163);
-//                long searchTime = System.currentTimeMillis();
-//                swapQueue = solutionSearch.searchDepthThreads(numThreads, depth, waterLevel);
-//                status.log("Search time: " + (System.currentTimeMillis() - searchTime));
-//                System.out.println("Search time: " + (System.currentTimeMillis() - searchTime));
-//                String swapString = "";
-//                for (Swap swap : swapQueue)
-//                {
-//                    swapString += "=> ";
-//                    swapString += swap;
-//                    swapString += " ";
-//                }
-//                status.log("Swap String: " + swapString);
-//                System.out.println(swapString);
-//                pieceSearch = new PieceSearch(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530)));
-//                pieceSearch.searchPieces(pieces); //Research since the board could have changed while processing
-//            }
-//
+        if(autoMode && System.currentTimeMillis() - lastSwapTime > 250 && ! mouseMoveThread.hasMove())
+        {
+
+            if (true) //swapQueue.isEmpty()) //Finds a move if one is needed
+            {
+                overlayFrame.setSolution(null);
+                System.out.println("Searching for new swaps...");
+                status.setStatus("Searching for new swaps");
+                SolutionSearch solutionSearch = new SolutionSearch(board, 0, 163);
+                long searchTime = System.currentTimeMillis();
+                swapQueue = solutionSearch.searchDepthThreads(numThreads, depth);
+                status.log("Search time: " + (System.currentTimeMillis() - searchTime));
+                System.out.println("Search time: " + (System.currentTimeMillis() - searchTime));
+                String swapString = "";
+                for (Swap swap : swapQueue)
+                {
+                    swapString += "=> ";
+                    swapString += swap;
+                    swapString += " ";
+                }
+                status.log("Swap String: " + swapString);
+                System.out.println(swapString);
+                board = PieceSearch.searchPieces(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530))); //Research since the board could have changed while processing
+            }
+
 //            if(swapQueue.get(0).getXPos() == -1)
 //            {
 //                swapQueue.remove(0);
@@ -308,7 +307,7 @@ public class RiggingBot
 //
 //                overlayFrame.setSolution(new Point(swap.getXPos(), swap.getYPos()));
 //            }
-//        }
+        }
     }
 
 

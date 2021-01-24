@@ -7,113 +7,118 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bilgebot.Board.MOVES_PER_DIRECTION;
+
 /**
  * Created by Jacob on 7/13/2015.
  */
 public class SolutionSearch
 {
-    private Piece[][] board;
+    private Board board;
     private Piece[][] cleanBoard;
     private int startIndex;
     private int endIndex;
-    private int waterLevel;
     SolutionSearch childSearcher;
 
-    public SolutionSearch(final Piece[][] board, int startIndex, int endIndex, int waterLevel)
+    public SolutionSearch(final Board board, int startIndex, int endIndex)
     {
-        this.board = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
-        cleanBoard = new Piece[board.length][board[0].length];
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
-        this.waterLevel = waterLevel;
-    }
-
-    public void resetWith(final Piece[][] board, int depth, int startIndex, int endIndex, int waterLevel) {
         this.board = board;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
-        this.waterLevel = waterLevel;
     }
 
-    public List<Swap> searchDepth(int depth, int ignoreX, int ignoreY)
+    public void resetWith(final Board board, int startIndex, int endIndex) {
+        this.board = board;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+    }
+
+    public List<Swap> searchDepth(int depth)
     {
         List<Swap> bestSwap = null;
 
         for (int i = startIndex; i < endIndex; i++)
         {
-            int y = i / board[0].length;
-            int x = i % board[0].length;
+            Direction direction;
+            if(i / MOVES_PER_DIRECTION == 0)
+                direction = Direction.Horizontal;
+            else if(i / MOVES_PER_DIRECTION == 1)
+                direction = Direction.DownRight;
+            else
+                direction = Direction.DownLeft;
 
-            if (x == 5 ||
-                    board[y][x] == null || board[y][x + 1] == null ||
-                    board[y][x] == board[y][x + 1]
-                    || (x == ignoreX && y == ignoreY)
-            ){
-                continue;
-            }
+            int moveIndex = i % MOVES_PER_DIRECTION;
+
+            Board copyBoard = board.clone();
+
+            copyBoard.makeMove(moveIndex, direction);
+
+
 
             // two normal pieces
-            if (board[y][x] instanceof StandardPiece && board[y][x + 1] instanceof StandardPiece)
-            {
-                swapAdjacent(x, y);
-
-                int totalScore = 0;
-                Solution solution;
-                // quick check if there are any series
-                if (
-                    // left horizontal
-                    (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
-                    // right horizontal
-                    (x < (board[0].length - 3) && board[y][x + 1] == board[y][x + 2] && board[y][x + 1] == board[y][x + 3]) ||
-                    // two above vertical left
-                    (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
-                    // one above, one below vertical left
-                    (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
-                    // two below vertical left
-                    (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]) ||
-                    // two above vertical right
-                    (y > 1 && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y - 2][x + 1]) ||
-                    // one above, one below vertical right
-                    (y > 0 && y < (board.length - 1) && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y + 1][x + 1]) ||
-                    // two below vertical right
-                    (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
-                ) {
-                    copyToCleanBoard(board);
-
-                    solution = ScoreSearch.searchAndRemove(cleanBoard,x,y);
-                    if (solution.getScore() > 0) {
-                        int crabPoints = SolutionSearch.tickBoard(cleanBoard, waterLevel);
-                        solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
-                    }
-                    bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth, true);
-                } else {
-                    solution = new Solution(0, new ArrayList<>());
-                    bestSwap = findBestChildSwap(board, bestSwap, x, y, solution, depth, true);
-                }
-
-                swapAdjacent(x, y);
-            }
+//            if (board[y][x] instanceof StandardPiece && board[y][x + 1] instanceof StandardPiece)
+//            {
+//                swapAdjacent(x, y);
+//
+//                int totalScore = 0;
+//                Solution solution;
+//                // quick check if there are any series
+//                if (
+//                    // left horizontal
+//                    (x > 1 && board[y][x] == board[y][x - 1] && board[y][x] == board[y][x - 2]) ||
+//                    // right horizontal
+//                    (x < (board[0].length - 3) && board[y][x + 1] == board[y][x + 2] && board[y][x + 1] == board[y][x + 3]) ||
+//                    // two above vertical left
+//                    (y > 1 && board[y][x] == board[y - 1][x] && board[y][x] == board[y - 2][x]) ||
+//                    // one above, one below vertical left
+//                    (y > 0 && y < (board.length - 1) && board[y][x] == board[y - 1][x] && board[y][x] == board[y + 1][x]) ||
+//                    // two below vertical left
+//                    (y < (board.length - 2) && board[y][x] == board[y + 1][x] && board[y][x] == board[y + 2][x]) ||
+//                    // two above vertical right
+//                    (y > 1 && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y - 2][x + 1]) ||
+//                    // one above, one below vertical right
+//                    (y > 0 && y < (board.length - 1) && board[y][x + 1] == board[y - 1][x + 1] && board[y][x + 1] == board[y + 1][x + 1]) ||
+//                    // two below vertical right
+//                    (y < (board.length - 2) && board[y][x + 1] == board[y + 1][x + 1] && board[y][x + 1] == board[y + 2][x + 1])
+//                ) {
+//                    copyToCleanBoard(board);
+//
+//                    solution = ScoreSearch.searchAndRemove(cleanBoard,x,y);
+//                    if (solution.getScore() > 0) {
+//                        int crabPoints = SolutionSearch.tickBoard(cleanBoard, waterLevel);
+//                        solution.setScore(solution.getScore() + handleBoardClearing(cleanBoard) + crabPoints);
+//                    }
+//                    bestSwap = findBestChildSwap(cleanBoard, bestSwap, x, y, solution, depth, true);
+//                } else {
+//                    solution = new Solution(0, new ArrayList<>());
+//                    bestSwap = findBestChildSwap(board, bestSwap, x, y, solution, depth, true);
+//                }
+//
+//                swapAdjacent(x, y);
+//            }
         }
 
-        return bestSwap;
+//        return bestSwap;
+
+            return null;
     }
 
-    public List<Swap> searchDepthThreads(int numThreads, int depth, int waterLevel)
+    public List<Swap> searchDepthThreads(int numThreads, int depth)
     {
-        int segmentSize = (board.length * board[0].length) / numThreads;
+        int segmentSize = Board.TOTAL_MOVES / numThreads;
 
         SolutionSearchThread[] threads = new SolutionSearchThread[numThreads];
 
         for (int i = 0; i < numThreads; i++)
         {
             SolutionSearch solutionSearch;
-            if(i == numThreads - 1)
+            if(i < numThreads - 1)
             {
-                solutionSearch = new SolutionSearch(board, i * segmentSize, board.length * board[0].length, waterLevel);
+                solutionSearch = new SolutionSearch(board, i * segmentSize, (i + 1) * segmentSize);
             }
             else
             {
-                solutionSearch = new SolutionSearch(board, i * segmentSize, (i + 1) * segmentSize, waterLevel);
+                solutionSearch = new SolutionSearch(board, i * segmentSize, Board.TOTAL_MOVES);
             }
             threads[i] = new SolutionSearchThread(solutionSearch, depth);
             threads[i].start();
@@ -139,11 +144,6 @@ public class SolutionSearch
         return bestSwaps;
     }
 
-    private void copyToCleanBoard(Piece[][] board) {
-        // though this is creatig a new array[][] every time it has tested to be faster. Java limitation
-        cleanBoard = Arrays.stream(board).map(Piece[]::clone).toArray(Piece[][]::new);
-    }
-
     private int handleBoardClearing(Piece[][] workingBoard){
         Piece[][] currentBoard = workingBoard;
         Solution tempSolution;
@@ -154,7 +154,7 @@ public class SolutionSearch
             tempSolution = ScoreSearch.searchAndRemove(currentBoard,-1,-1);
             if(tempSolution.getScore() > 0) {
                 totalScore += Math.min(tempSolution.getScore(), 7) / 3;
-                totalScore += SolutionSearch.tickBoard(cleanBoard, waterLevel);
+                totalScore += SolutionSearch.tickBoard(cleanBoard);
                 currentBoard = cleanBoard;
             }
         } while (tempSolution.getScore() > 0);
@@ -175,10 +175,10 @@ public class SolutionSearch
         if (depth > 1)
         {
             if(childSearcher == null)
-                childSearcher = new SolutionSearch(sourceBoard, 0, 72, waterLevel);
+                childSearcher = new SolutionSearch(board, 0, 72);
             else
-                childSearcher.resetWith(sourceBoard, depth - 1, 0, 72, waterLevel);
-            currentSwaps = childSearcher.searchDepth(depth - 1, wasSwap ? x : -1, wasSwap ? y : -1);
+                childSearcher.resetWith(board, 0, 72);
+            currentSwaps = childSearcher.searchDepth(depth - 1);
         }
 
         currentSwaps.add(0, new Swap(x,y,solution));
@@ -203,12 +203,12 @@ public class SolutionSearch
 
     private void swapAdjacent(int xPos, int yPos)
     {
-        StandardPiece tempPiece = (StandardPiece) board[yPos][xPos]; //Swap
-        board[yPos][xPos] = board[yPos][xPos + 1];
-        board[yPos][xPos + 1] = tempPiece;
+        StandardPiece tempPiece = (StandardPiece) board.getPieces()[yPos][xPos]; //Swap
+        board.getPieces()[yPos][xPos] = board.getPieces()[yPos][xPos + 1];
+        board.getPieces()[yPos][xPos + 1] = tempPiece;
     }
 
-    public static int tickBoard(Piece[][] board, int waterLevel)
+    public static int tickBoard(Piece[][] board)
     {
         int vOffset = 0;
         int totalScore = 0;
