@@ -18,8 +18,9 @@ public abstract class WildPiece extends SpecialPiece
     protected static ArrayList<SpecialPiece> populatePieces()
     {
         ArrayList<SpecialPiece> pieces = new ArrayList<>();
-        pieces.add(RainbowPiece.INSTANCE);
+        pieces.add(GaffPiece.INSTANCE);
         pieces.add(TarPiece.INSTANCE);
+        pieces.add(RainbowPiece.INSTANCE);
         return pieces;
     }
 }

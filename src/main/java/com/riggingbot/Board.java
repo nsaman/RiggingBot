@@ -40,6 +40,8 @@ public class Board {
         if(pieces[activeRigCoords.y][activeRigCoords.x] instanceof SpecialPiece)
             return 0;
 
+        //todo support gaff clearing
+
         Map<Integer, Set<Integer>> clearedPieces = new HashMap<>();
         Map<Integer, Set<Integer>> newClearedPieces = new HashMap<>();
         safeAdd(clearedPieces, activeRigCoords.y, activeRigCoords.x);
