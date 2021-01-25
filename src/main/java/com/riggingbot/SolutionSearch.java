@@ -35,11 +35,13 @@ public class SolutionSearch
 
             copyBoard.makeMove(i);
 
-            int matchingPieceScore = copyBoard.doRig();
+            int score = 0;
 
-            int loopedPieceScore = copyBoard.doClear();
+            score += copyBoard.doRig();
 
-            Swap thisSwap = new Swap(i, matchingPieceScore);
+            score += copyBoard.doClear();
+
+            Swap thisSwap = new Swap(i, score);
 
             copyBoard.setActiveRig((copyBoard.getActiveRig() + 1) % 6);
 

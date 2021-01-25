@@ -17,6 +17,9 @@ public class Board {
     private int activeRig;
     private Piece[][] pieces;
 
+    //sloppy, used to find tars
+    Piece clearingPiece = null;
+
     public Board() {
         pieces = new Piece[9][];
         for(int y = 0; y < NUM_ROWS; y++) {
@@ -27,7 +30,7 @@ public class Board {
 
     public Board clone() {
         Piece[][] pieces = Arrays.stream(this.pieces).map(Piece[]::clone).toArray(Piece[][]::new);
-        return new Board(activeRig, pieces);
+        return new Board(activeRig, pieces, null);
     }
 
     // sets all used pieces to future piece and returns count
@@ -62,6 +65,9 @@ public class Board {
         int score = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
 
         if(score >= 3) {
+            if(score >= 5) {
+                clearingPiece = searchPiece;
+            }
             for (int y : clearedPieces.keySet()) {
                 Set<Integer> xPieces = clearedPieces.get(y);
                 xPieces.forEach(x -> pieces[y][x] = FuturePiece.INSTANCE);
@@ -75,16 +81,25 @@ public class Board {
 
     // sets all futures to null, and handles looped pieces
     public int doClear() {
+        int bonusScore = 0;
         // todo add looped score
+
+        //valuing tar
+        int leftOverPieces = 0;
 
         for (int y = 0; y < pieces.length; y++) {
             for (int x = 0; x < pieces[y].length; x++){
                 if(pieces[y][x] == FuturePiece.INSTANCE)
                     pieces[y][x] = NullPiece.INSTANCE;
+                else if(pieces[y][x] == clearingPiece)
+                    leftOverPieces += 1;
             }
         }
 
-        return 0;
+        if(clearingPiece != null && leftOverPieces == 0)
+            bonusScore+=10;
+
+        return bonusScore;
     }
 
     public void makeMove(int moveIndex) {

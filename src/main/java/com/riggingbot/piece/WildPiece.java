@@ -19,6 +19,7 @@ public abstract class WildPiece extends SpecialPiece
     {
         ArrayList<SpecialPiece> pieces = new ArrayList<>();
         pieces.add(RainbowPiece.INSTANCE);
+        pieces.add(TarPiece.INSTANCE);
         return pieces;
     }
 }
