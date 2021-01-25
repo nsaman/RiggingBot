@@ -1,46 +1,32 @@
 package com.bilgebot;
 
-import com.bilgebot.solution.Solution;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import static com.bilgebot.Board.MOVES_PER_DIRECTION;
 
 /**
  * Created by Jacob on 7/13/2015.
  */
+@Getter
+@AllArgsConstructor
 public class Swap
 {
-    private int xPos;
-    private int yPos;
-    private Solution solution;
-
-    public Swap(int xPos, int yPos, Solution solution)
-    {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.solution = solution;
-    }
+    private int moveIndex;
+    private int points;
 
     @Override
     public String toString()
     {
-        return String.format("%d %s (%d, %d)", solution.getScore(), solution.toString(),  xPos, yPos);
+        Direction direction;
+        if(moveIndex / MOVES_PER_DIRECTION == 0)
+            direction = Direction.Horizontal;
+        else if(moveIndex / MOVES_PER_DIRECTION == 1)
+            direction = Direction.DownRight;
+        else
+            direction = Direction.DownLeft;
+
+        return String.format("%d (%s, %d)", points, direction.name(), moveIndex);
     }
 
-    public int getXPos()
-    {
-        return xPos;
-    }
-
-    public int getYPos()
-    {
-        return yPos;
-    }
-
-    public int getScore()
-    {
-        return solution.getScore();
-    }
-
-    public Solution getSolution()
-    {
-        return solution;
-    }
 }

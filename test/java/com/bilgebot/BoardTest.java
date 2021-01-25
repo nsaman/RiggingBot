@@ -9,6 +9,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Set;
 
 public class BoardTest {
 
@@ -229,5 +231,78 @@ public class BoardTest {
         Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[6][6]);
         Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[7][5]);
         Assert.assertEquals(BlackPiece.INSTANCE, board.getPieces()[8][4]);
+    }
+
+    @Test
+    public void test_nearbyMatches_top_left(){
+        setBoardToBrown(board);
+        board.getPieces()[0][1] = RainbowPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(0,0, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_top_right(){
+        setBoardToBrown(board);
+        board.getPieces()[0][4] = RainbowPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(0,4, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_left(){
+        setBoardToBrown(board);
+        board.getPieces()[3][0] = RainbowPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(4,0, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_right(){
+        setBoardToBrown(board);
+        board.getPieces()[3][7] = RainbowPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(4,8, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_bottom_left(){
+        setBoardToBrown(board);
+        board.getPieces()[7][0] = RainbowPiece.INSTANCE;
+        board.getPieces()[7][1] = RainbowPiece.INSTANCE;
+        board.getPieces()[8][0] = RainbowPiece.INSTANCE;
+        board.getPieces()[8][1] = RainbowPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(8,0, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_bottom_right(){
+        setBoardToBrown(board);
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(8,4, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    @Test
+    public void test_nearbyMatches_middle(){
+        setBoardToBrown(board);
+        board.getPieces()[4][3] = BlackPiece.INSTANCE;
+        board.getPieces()[3][4] = BlackPiece.INSTANCE;
+        board.getPieces()[5][4] = BlackPiece.INSTANCE;
+
+        Set<Board.IntTuple> matches = board.nearbyMatches(4,4, BrownPiece.INSTANCE);
+        Assert.assertEquals(3, matches.size());
+    }
+
+    private void setBoardToBrown(Board board) {
+        Arrays.stream(board.getPieces()).forEach(row ->
+            Arrays.fill(row, BrownPiece.INSTANCE)
+        );
     }
 }

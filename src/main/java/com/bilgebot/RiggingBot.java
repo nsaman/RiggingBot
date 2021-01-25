@@ -288,7 +288,6 @@ public class RiggingBot
                 }
                 status.log("Swap String: " + swapString);
                 System.out.println(swapString);
-                board = PieceSearch.searchPieces(robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530))); //Research since the board could have changed while processing
             }
 
 //            if(swapQueue.get(0).getXPos() == -1)

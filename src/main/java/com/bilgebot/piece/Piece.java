@@ -15,7 +15,7 @@ public abstract class Piece
     private static ArrayList<Piece> populatePieces()
     {
         ArrayList<Piece> pieces = new ArrayList<>();
-        pieces.add(0, NullPiece.INSTANCE);
+        pieces.addAll(SpecialPiece.populatePieces());
         pieces.addAll(StandardPiece.populatePieces());
         return pieces;
     }

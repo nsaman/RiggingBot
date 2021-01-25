@@ -24,7 +24,6 @@ public abstract class StandardPiece extends Piece
         pieces.add(DarkBluePiece.INSTANCE);
         pieces.add(GrayPiece.INSTANCE);
         pieces.add(LightBluePiece.INSTANCE);
-        pieces.add(RainbowPiece.INSTANCE);
         pieces.add(YellowPiece.INSTANCE);
         return pieces;
     }
