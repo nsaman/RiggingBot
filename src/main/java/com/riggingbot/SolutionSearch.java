@@ -47,7 +47,7 @@ public class SolutionSearch
             copyBoard.setActiveRig((copyBoard.getActiveRig() + 1) % 6);
 
             List<Swap> swaps;
-            if(depth > 1)
+            if(depth > 1 && score <= 0)
                 swaps = findBestChildSwap(copyBoard, depth - 1);
             else
                 swaps = new ArrayList<>();
@@ -111,8 +111,8 @@ public class SolutionSearch
     private static int sumSwapScores(List<Swap> swaps)
     {
         int sum = 0;
-        for (Swap swap : swaps) {
-            sum += swap.getPoints();
+        for (int i = 0; i < swaps.size(); i++) {
+            sum += swaps.get(i).getPoints() - i;
         }
         return sum;
     }
