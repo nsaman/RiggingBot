@@ -11,6 +11,6 @@ public class DarkBluePiece extends StandardPiece
 
     private DarkBluePiece()
     {
-        super(new Color(41, 15 , 186));
+        super(new Color(0, 8, 55));
     }
 }

@@ -11,6 +11,6 @@ public class BluePiece extends StandardPiece
 
     private BluePiece()
     {
-        super(new Color(33, 99 , 242));
+        super(new Color(2, 68 , 211));
     }
 }

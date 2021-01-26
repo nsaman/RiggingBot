@@ -11,6 +11,6 @@ public class BrownPiece extends StandardPiece
 
     private BrownPiece()
     {
-        super(new Color(211, 160 , 34));
+        super(new Color(201, 150 , 24));
     }
 }

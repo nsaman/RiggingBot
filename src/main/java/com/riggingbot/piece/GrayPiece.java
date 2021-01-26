@@ -11,6 +11,6 @@ public class GrayPiece extends StandardPiece
 
     private GrayPiece()
     {
-        super(new Color(233, 233 , 233));
+        super(new Color(137, 137 , 137));
     }
 }

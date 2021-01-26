@@ -65,6 +65,7 @@ public class Board {
         }
 
         int score = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
+        score = (int)((score * score * .1) /2) + score;
 
         if(score >= 3) {
             if(score >= 5) {
@@ -169,12 +170,63 @@ public class Board {
         return new Move(direction, row, rowIndex);
     }
 
-    private void shiftHorizontally(int row, int moveIdentity) {
+    // visible for testing
+    void shiftHorizontally(int row, int moveIdentity) {
         int amount = moveIdentity + 1;
-        // using a buffer but I really don't like it
+//        Piece[] arr =  pieces[row];
+//         using a buffer but I really don't like it
         Piece[] copy = pieces[row].clone();
         for(int i = 0; i < copy.length; i++) {
             pieces[row][(i + amount) % copy.length] = copy[i];
+        }
+
+        //https://stackoverflow.com/questions/876293/fastest-algorithm-for-circle-shift-n-sized-array-for-m-position
+//        int i, j, k;
+//        Piece tmp;
+//        int gcd = gcd(arr.length, amount);
+//
+//        for(i = 0; i < gcd; i++) {
+//            // start cycle at i
+//            tmp = arr[i];
+//            for(j = i; true; j = k) {
+//                k = j+amount;
+//                if(k >= arr.length) k -= arr.length; // wrap around if we go outside array
+//                if(k == i) break; // end of cycle
+//                arr[j] = arr[k];
+//            }
+//            arr[j] = tmp;
+//        }
+    }
+
+    //https://en.wikipedia.org/wiki/Binary_GCD_algorithm
+    int gcd(int u, int v)
+    {
+        // Base cases
+        //  gcd(n, n) = n
+        if (u == v)
+            return u;
+
+        //  Identity 1: gcd(0, n) = gcd(n, 0) = n
+        if (u == 0)
+            return v;
+        if (v == 0)
+            return u;
+
+        if (u % 2 == 0) { // u is even
+            if (v % 2 == 1) // v is odd
+                return gcd(u/2, v); // Identity 3
+            else // both u and v are even
+                return 2 * gcd(u/2, v/2); // Identity 2
+
+        } else { // u is odd
+            if (v % 2 == 0) // v is even
+                return gcd(u, v/2); // Identity 3
+
+            // Identities 4 and 3 (u and v are odd, so u-v and v-u are known to be even)
+            if (u > v)
+                return gcd((u - v)/2, v);
+            else
+                return gcd((v - u)/2, u);
         }
     }
 

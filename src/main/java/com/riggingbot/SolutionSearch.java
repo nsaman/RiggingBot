@@ -39,7 +39,8 @@ public class SolutionSearch
 
             score += copyBoard.doRig();
 
-            score += copyBoard.doClear();
+            if(score > 0)
+                score += copyBoard.doClear();
 
             Swap thisSwap = new Swap(i, score);
 

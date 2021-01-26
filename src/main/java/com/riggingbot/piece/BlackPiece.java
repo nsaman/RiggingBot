@@ -11,6 +11,6 @@ public class BlackPiece extends StandardPiece
 
     private BlackPiece()
     {
-        super(new Color(38, 38 , 38));
+        super(new Color(97, 97 , 97));
     }
 }

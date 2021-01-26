@@ -1,6 +1,9 @@
 package com.riggingbot;
 
 import com.riggingbot.piece.Piece;
+import com.riggingbot.piece.SpliceDownLeftPiece;
+import com.riggingbot.piece.SpliceDownRightPiece;
+import com.riggingbot.piece.SpliceHorizontalPiece;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -16,7 +19,7 @@ public class PieceSearch
     public final static int PIECE_WIDTH = 44;
     public final static int PIECE_HEIGHT = 38;
     public final static int X_BOARD_OFFSET = 39;
-    public final static int Y_BOARD_OFFSET = 74;
+    public final static int Y_BOARD_OFFSET = 57;
 
     public static Board searchPieces(BufferedImage screenCapture)
     {
@@ -42,6 +45,20 @@ public class PieceSearch
                     {
                         Piece piece = Piece.pieces.get(i);
                         board.getPieces()[y][x] = piece;
+                    }
+                }
+                if(SpliceDownLeftPiece.INSTANCE.isColorPiece(color)) {
+                    if(!(new Color(screenCapture.getRGB(xPos - 5, yPos)))
+                            .equals(new Color(170, 146 , 116))) {
+                        board.getPieces()[y][x] = SpliceDownRightPiece.INSTANCE;
+                        System.out.println("Splice down right found at y=" + y + " x=" + x);
+                    } else if(!(new Color(screenCapture.getRGB(xPos + 5, yPos)))
+                            .equals(new Color(207, 183 , 153))) {
+                        board.getPieces()[y][x] = SpliceDownLeftPiece.INSTANCE;
+                        System.out.println("Splice down left found at y=" + y + " x=" + x);
+                    } else {
+                        board.getPieces()[y][x] = SpliceHorizontalPiece.INSTANCE;
+                        System.out.println("Splice horizontal found at y=" + y + " x=" + x);
                     }
                 }
             }

@@ -23,7 +23,7 @@ public class TickThread extends Thread
         {
             try
             {
-                sleep(10);
+                sleep(50);
             } catch (InterruptedException e)
             {
                 //do nothing
@@ -31,7 +31,7 @@ public class TickThread extends Thread
             long initTickTime = System.currentTimeMillis();
             riggingBot.tick();
             long tickTime = System.currentTimeMillis() - initTickTime;
-            if (tickTime > 30)
+            if (tickTime > 100)
             {
                 System.out.println("Tick time: " + (System.currentTimeMillis() - initTickTime));
             }

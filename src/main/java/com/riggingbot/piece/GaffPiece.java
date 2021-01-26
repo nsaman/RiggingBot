@@ -11,6 +11,6 @@ public class GaffPiece extends WildPiece
 
     private GaffPiece()
     {
-        super(new Color(194, 195 , 194));
+        super(new Color(48, 48 , 48));
     }
 }

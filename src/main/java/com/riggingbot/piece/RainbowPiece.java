@@ -11,6 +11,6 @@ public class RainbowPiece extends WildPiece
 
     private RainbowPiece()
     {
-        super(new Color(180, 180 , 180));
+        super(new Color(236, 236 , 144));
     }
 }

@@ -11,6 +11,6 @@ public class LightBluePiece extends StandardPiece
 
     private LightBluePiece()
     {
-        super(new Color(66, 182 , 224));
+        super(new Color(123, 220 , 245));
     }
 }

@@ -11,6 +11,6 @@ public class TarPiece extends WildPiece
 
     private TarPiece()
     {
-        super(new Color(96, 96 , 100));
+        super(new Color(1, 1 , 1));
     }
 }

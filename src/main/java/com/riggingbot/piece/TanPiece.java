@@ -11,6 +11,6 @@ public class TanPiece extends StandardPiece
 
     private TanPiece()
     {
-        super(new Color(255, 249 , 225));
+        super(new Color(213, 205 , 178));
     }
 }

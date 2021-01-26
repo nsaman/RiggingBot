@@ -11,6 +11,6 @@ public class FuturePiece extends SpecialPiece
 
     private FuturePiece()
     {
-        super(new Color(0, 0, 0));
+        super(new Color(9, 99, 99));
     }
 }

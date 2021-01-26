@@ -20,7 +20,6 @@ public abstract class SpecialPiece extends Piece
         ArrayList<SpecialPiece> pieces = new ArrayList<>();
         pieces.add(FuturePiece.INSTANCE);
         pieces.add(NullPiece.INSTANCE);
-        pieces.add(RainbowPiece.INSTANCE);
         pieces.addAll(WildPiece.populatePieces());
         return pieces;
     }
