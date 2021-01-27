@@ -103,7 +103,7 @@ public class SolutionSearch
 
     private List<Swap> findBestChildSwap(Board sourceBoard, int depth){
 
-        SolutionSearch childSearcher = new SolutionSearch(sourceBoard, 0, 72);
+        SolutionSearch childSearcher = new SolutionSearch(sourceBoard, 0, Board.TOTAL_MOVES);
 
         return childSearcher.searchDepth(depth);
     }

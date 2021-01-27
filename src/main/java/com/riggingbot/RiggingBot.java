@@ -278,7 +278,7 @@ public class RiggingBot
                 overlayFrame.setSolution(null);
                 System.out.println("Searching for new swaps...");
                 status.setStatus("Searching for new swaps");
-                SolutionSearch solutionSearch = new SolutionSearch(board, 0, 163);
+                SolutionSearch solutionSearch = new SolutionSearch(board, 0, Board.TOTAL_MOVES);
                 long searchTime = System.currentTimeMillis();
                 swapQueue = solutionSearch.searchDepthThreads(numThreads, depth);
                 status.log("Search time: " + (System.currentTimeMillis() - searchTime));
