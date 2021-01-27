@@ -68,23 +68,24 @@ public class PieceSearch
 
     private static int findActiveRig(BufferedImage screenCapture) {
         Color highlighted = new Color(253, 244 , 149);
+        Color whiteHighlighted = new Color(254, 254 , 254);
         Color topColor = new Color(screenCapture.getRGB(231, 39));
         Color topRightColor = new Color(screenCapture.getRGB(380, 142));
         Color bottomRightColor = new Color(screenCapture.getRGB(367, 343));
         Color bottomColor = new Color(screenCapture.getRGB(196, 404));
         Color bottomLeftColor = new Color(screenCapture.getRGB(31, 307));
         Color topLeftColor = new Color(screenCapture.getRGB(53, 96));
-        if(withinX(highlighted, topColor, 10))
+        if(withinX(highlighted, topColor, 10) || withinX(whiteHighlighted, topColor, 10))
             return 0;
-        else if(withinX(highlighted, topRightColor, 10))
+        else if(withinX(highlighted, topRightColor, 10) || withinX(whiteHighlighted, topRightColor, 10))
             return 1;
-        else if(withinX(highlighted, bottomRightColor, 10))
+        else if(withinX(highlighted, bottomRightColor, 10) || withinX(whiteHighlighted, bottomRightColor, 10))
             return 2;
-        else if(withinX(highlighted, bottomColor, 10))
+        else if(withinX(highlighted, bottomColor, 10) || withinX(whiteHighlighted, bottomColor, 10))
             return 3;
-        else if(withinX(highlighted, bottomLeftColor, 10))
+        else if(withinX(highlighted, bottomLeftColor, 10) || withinX(whiteHighlighted, bottomLeftColor, 10))
             return 4;
-        else if(withinX(highlighted, topLeftColor, 10))
+        else if(withinX(highlighted, topLeftColor, 10) || withinX(whiteHighlighted, topLeftColor, 10))
             return 5;
         else
             return -1;
