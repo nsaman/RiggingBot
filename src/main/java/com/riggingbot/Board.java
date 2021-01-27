@@ -16,6 +16,7 @@ public class Board {
 
     private int activeRig;
     private Piece[][] pieces;
+    private IntTuple splice = null;
 
     //sloppy, used to find tars
     Piece clearingPiece = null;
@@ -30,7 +31,7 @@ public class Board {
 
     public Board clone() {
         Piece[][] pieces = Arrays.stream(this.pieces).map(Piece[]::clone).toArray(Piece[][]::new);
-        return new Board(activeRig, pieces, null);
+        return new Board(activeRig, pieces, null, null);
     }
 
     // sets all used pieces to future piece and returns count
@@ -43,10 +44,122 @@ public class Board {
         //todo support gaff clearing
 
         Map<Integer, Set<Integer>> clearedPieces = new HashMap<>();
-        Map<Integer, Set<Integer>> newClearedPieces = new HashMap<>();
         safeAdd(clearedPieces, activeRigCoords.y, activeRigCoords.x);
-        safeAdd(newClearedPieces, activeRigCoords.y, activeRigCoords.x);
-        Piece searchPiece = pieces[activeRigCoords.y][activeRigCoords.x];
+        Piece searchPiece = getChainedPieces(clearedPieces, new IntTuple(activeRigCoords.y, activeRigCoords.x));
+
+        // initial clear before splice
+        int cleared = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
+        int score;
+
+        if(cleared - (splice == null ? 0 : 1) >= 3) {
+            if(cleared - (splice == null ? 0 : 1) >= 5) {
+                clearingPiece = searchPiece;
+            }
+
+            if (splice != null) {
+                Piece splicePiece = pieces[splice.y][splice.x];
+                if(splicePiece == SpliceHorizontalPiece.INSTANCE) {
+                    if(splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
+                        if(searchPiece != pieces[splice.y][splice.x - 1]) {
+                            getChainedPieces(clearedPieces, new IntTuple(splice.y, splice.x - 1));
+                        } else if(searchPiece != pieces[splice.y][splice.x + 1]) {
+                            getChainedPieces(clearedPieces, new IntTuple(splice.y, splice.x + 1));
+                        }
+                    }
+                } else if(splice.y > 0 && splice.y < pieces.length - 1) {
+                     if(splicePiece == SpliceDownRightPiece.INSTANCE ) {
+                         if (splice.y < 4 && splice.x > 0) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x - 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x - 1));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x + 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x + 1));
+                             }
+                         } else if(splice.y == 4 && splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x - 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x - 1));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
+                             }
+                         }
+                         else if (splice.y > 4 && splice.x < pieces[splice.y].length - 1) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
+                             }
+                         }
+                     } else {
+                         if (splice.y < 4 && splice.x < pieces[splice.y].length - 1) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
+                             }
+                         } else if(splice.y == 4 && splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x - 1));
+                             }
+                         }
+                         else if (splice.y > 4 && splice.x > 0) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x + 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x + 1));
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1]) {
+                                 getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x - 1));
+                             }
+                         }
+                     }
+                }
+            }
+
+            // chain before gaff
+            cleared = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
+            score = (int)((cleared * cleared * .1) /2) + cleared;
+
+            for (int y : clearedPieces.keySet()) {
+                Set<Integer> xPieces = clearedPieces.get(y);
+                xPieces.forEach(x -> pieces[y][x] = FuturePiece.INSTANCE);
+            }
+        } else {
+            score = 0;
+        }
+
+        boolean spliceFlag = false;
+        IntTuple plusTwoRig = getRigCoordinates((activeRig + 2) % 6);
+        if(clearedPieces.containsKey(plusTwoRig.y) && clearedPieces.get(plusTwoRig.y).contains(plusTwoRig.x)) {
+            spliceFlag = true;
+            score += 5;
+        }
+        IntTuple plusThreeRig = getRigCoordinates((activeRig + 3) % 6);
+        if(clearedPieces.containsKey(plusThreeRig.y) && clearedPieces.get(plusThreeRig.y).contains(plusThreeRig.x)) {
+            spliceFlag = true;
+            score += 5;
+        }
+        IntTuple plusFourRig = getRigCoordinates((activeRig + 4) % 6);
+        if(clearedPieces.containsKey(plusFourRig.y) && clearedPieces.get(plusFourRig.y).contains(plusFourRig.x)) {
+            spliceFlag = true;
+            score += 5;
+        }
+        if (spliceFlag) {
+            score += 5;
+            IntTuple plusOneRig = getRigCoordinates((activeRig + 1) % 6);
+            if(clearedPieces.containsKey(plusOneRig.y) && clearedPieces.get(plusOneRig.y).contains(plusOneRig.x)) {
+                score += 5;
+            }
+            IntTuple plusFiveRig = getRigCoordinates((activeRig + 5) % 6);
+            if(clearedPieces.containsKey(plusFiveRig.y) && clearedPieces.get(plusFiveRig.y).contains(plusFiveRig.x)) {
+                score += 5;
+            }
+        }
+
+        return score;
+    }
+
+    private Piece getChainedPieces(Map<Integer, Set<Integer>> clearedPieces, IntTuple startingCoords) {
+        Map<Integer, Set<Integer>> newClearedPieces = new HashMap<>();
+        safeAdd(newClearedPieces, startingCoords.y, startingCoords.x);
+        Piece searchPiece = pieces[startingCoords.y][startingCoords.x];
         while (newClearedPieces.size() > 0) {
             Map<Integer, Set<Integer>> thisPieces = new HashMap<>();
 
@@ -64,22 +177,7 @@ public class Board {
             newClearedPieces = thisPieces;
         }
 
-        int score = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
-        score = (int)((score * score * .1) /2) + score;
-
-        if(score >= 3) {
-            if(score >= 5) {
-                clearingPiece = searchPiece;
-            }
-            for (int y : clearedPieces.keySet()) {
-                Set<Integer> xPieces = clearedPieces.get(y);
-                xPieces.forEach(x -> pieces[y][x] = FuturePiece.INSTANCE);
-            }
-        } else {
-            score = 0;
-        }
-
-        return score;
+        return searchPiece;
     }
 
     // sets all futures to null, and handles looped pieces
@@ -269,7 +367,11 @@ public class Board {
     }
 
     private IntTuple getActiveRigCoordinates() {
-        return switch (activeRig) {
+        return getRigCoordinates(activeRig);
+    }
+
+    private IntTuple getRigCoordinates(int rigId) {
+        return switch (rigId) {
             case 0 -> topRig;
             case 1 -> topRightRig;
             case 2 -> bottomtopRightRigRig;
@@ -323,23 +425,60 @@ public class Board {
         // aboves
         if(y > 0) {
             int bottomHalfOffset = y < 5 ? 0 : -1;
-            if(x > bottomHalfOffset && (piece == pieces[y - 1][x - 1 - bottomHalfOffset] || pieces[y - 1][x - 1 - bottomHalfOffset] instanceof WildPiece))
-                matches.add(new IntTuple(y - 1, x - 1 - bottomHalfOffset));
-            if(x < pieces[y - 1].length + bottomHalfOffset && (piece == pieces[y - 1][x - bottomHalfOffset] || pieces[y - 1][x - bottomHalfOffset] instanceof WildPiece))
-                matches.add(new IntTuple(y - 1, x - bottomHalfOffset));
+            if(x > bottomHalfOffset) {
+                if(piece == pieces[y - 1][x - 1 - bottomHalfOffset] || pieces[y - 1][x - 1 - bottomHalfOffset] instanceof WildPiece)
+                    matches.add(new IntTuple(y - 1, x - 1 - bottomHalfOffset));
+                else if(pieces[y - 1][x - 1 - bottomHalfOffset] instanceof SpliceDownLeftPiece) {
+                    splice = new IntTuple(y - 1, x - 1 - bottomHalfOffset);
+                    matches.add(splice);
+                }
+            }
+            if(x < pieces[y - 1].length + bottomHalfOffset) {
+                if (piece == pieces[y - 1][x - bottomHalfOffset] || pieces[y - 1][x - bottomHalfOffset] instanceof WildPiece)
+                    matches.add(new IntTuple(y - 1, x - bottomHalfOffset));
+                else if(pieces[y - 1][x - bottomHalfOffset] instanceof SpliceDownRightPiece) {
+                    splice = new IntTuple(y - 1, x - bottomHalfOffset);
+                    matches.add(splice);
+                }
+            }
         }
         // horizontals
-        if(x > 0 && (piece == pieces[y][x - 1] || pieces[y][x - 1] instanceof WildPiece))
-            matches.add(new IntTuple(y, x - 1));
-        if(x < pieces[y].length - 1 && (piece == pieces[y][x + 1] || pieces[y][x + 1] instanceof WildPiece))
-            matches.add(new IntTuple(y, x + 1));
+        if(x > 0) {
+            if (piece == pieces[y][x - 1] || pieces[y][x - 1] instanceof WildPiece)
+                matches.add(new IntTuple(y, x - 1));
+            else if(pieces[y][x - 1] instanceof SpliceHorizontalPiece) {
+                splice = new IntTuple(y, x - 1);
+                matches.add(splice);
+            }
+        }
+        if(x < pieces[y].length - 1) {
+            if (piece == pieces[y][x + 1] || pieces[y][x + 1] instanceof WildPiece)
+                matches.add(new IntTuple(y, x + 1));
+            else if(pieces[y][x + 1] instanceof SpliceHorizontalPiece) {
+                splice = new IntTuple(y, x + 1);
+                matches.add(splice);
+            }
+        }
         //belows
         if(y < pieces.length - 1) {
             int bottomHalfOffset = y < 4 ? -1 : 0;
-            if(x > bottomHalfOffset && (piece == pieces[y + 1][x - 1 - bottomHalfOffset] || pieces[y + 1][x - 1 - bottomHalfOffset] instanceof WildPiece))
-                matches.add(new IntTuple(y + 1, x - 1 - bottomHalfOffset));
-            if(x < pieces[y + 1].length + bottomHalfOffset && (piece == pieces[y + 1][x - bottomHalfOffset] || pieces[y + 1][x - bottomHalfOffset] instanceof WildPiece))
-                matches.add(new IntTuple(y + 1, x - bottomHalfOffset));
+            if (x > bottomHalfOffset ) {
+                if (piece == pieces[y + 1][x - 1 - bottomHalfOffset] || pieces[y + 1][x - 1 - bottomHalfOffset] instanceof WildPiece)
+                    matches.add(new IntTuple(y + 1, x - 1 - bottomHalfOffset));
+                else if (pieces[y + 1][x - 1 - bottomHalfOffset] instanceof SpliceDownLeftPiece) {
+                    splice = new IntTuple(y + 1, x  - 1 - bottomHalfOffset);
+                    matches.add(splice);
+                }
+            }
+            if(x < pieces[y + 1].length + bottomHalfOffset) {
+                if ((piece == pieces[y + 1][x - bottomHalfOffset] || pieces[y + 1][x - bottomHalfOffset] instanceof WildPiece)) {
+                    matches.add(new IntTuple(y + 1, x - bottomHalfOffset));
+                }
+                else if (pieces[y + 1][x - bottomHalfOffset] instanceof SpliceDownRightPiece) {
+                    splice = new IntTuple(y + 1, x - bottomHalfOffset);
+                    matches.add(splice);
+                }
+            }
         }
 
         return matches;
