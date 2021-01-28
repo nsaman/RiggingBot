@@ -56,56 +56,57 @@ public class Board {
                 clearingPiece = searchPiece;
             }
 
+            // calculate the splice
             if (splice != null) {
                 Piece splicePiece = pieces[splice.y][splice.x];
                 if(splicePiece == SpliceHorizontalPiece.INSTANCE) {
                     if(splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
-                        if(searchPiece != pieces[splice.y][splice.x - 1]) {
+                        if(searchPiece != pieces[splice.y][splice.x - 1] && pieces[splice.y][splice.x - 1] instanceof StandardPiece) {
                             getChainedPieces(clearedPieces, new IntTuple(splice.y, splice.x - 1));
-                        } else if(searchPiece != pieces[splice.y][splice.x + 1]) {
+                        } else if(searchPiece != pieces[splice.y][splice.x + 1] && pieces[splice.y][splice.x + 1] instanceof StandardPiece) {
                             getChainedPieces(clearedPieces, new IntTuple(splice.y, splice.x + 1));
                         }
                     }
                 } else if(splice.y > 0 && splice.y < pieces.length - 1) {
                      if(splicePiece == SpliceDownRightPiece.INSTANCE ) {
                          if (splice.y < 4 && splice.x > 0) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x - 1]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x - 1] && pieces[splice.y - 1][splice.x - 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x - 1));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x + 1]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x + 1] && pieces[splice.y + 1][splice.x + 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x + 1));
                              }
                          } else if(splice.y == 4 && splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x - 1]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x - 1] && pieces[splice.y - 1][splice.x - 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x - 1));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x] && pieces[splice.y + 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
                              }
                          }
                          else if (splice.y > 4 && splice.x < pieces[splice.y].length - 1) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x] && pieces[splice.y - 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x] && pieces[splice.y + 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
                              }
                          }
                      } else {
                          if (splice.y < 4 && splice.x < pieces[splice.y].length - 1) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x] && pieces[splice.y - 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x] && pieces[splice.y + 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
                              }
                          } else if(splice.y == 4 && splice.x > 0 && splice.x < pieces[splice.y].length - 1) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x] && pieces[splice.y - 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1] && pieces[splice.y + 1][splice.x - 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x - 1));
                              }
                          }
                          else if (splice.y > 4 && splice.x > 0) {
-                             if(searchPiece != pieces[splice.y - 1][splice.x + 1]) {
+                             if(searchPiece != pieces[splice.y - 1][splice.x + 1] && pieces[splice.y - 1][splice.x + 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x + 1));
-                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1]) {
+                             } else if(searchPiece != pieces[splice.y + 1][splice.x - 1] && pieces[splice.y + 1][splice.x - 1] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x - 1));
                              }
                          }
