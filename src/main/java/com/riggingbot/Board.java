@@ -17,6 +17,8 @@ public class Board {
     private int activeRig;
     private Piece[][] pieces;
     private IntTuple splice = null;
+    private Set<IntTuple> possibleGaffs;
+    private Set<IntTuple> gaffs;
 
     //sloppy, used to find tars
     Piece clearingPiece = null;
@@ -31,7 +33,7 @@ public class Board {
 
     public Board clone() {
         Piece[][] pieces = Arrays.stream(this.pieces).map(Piece[]::clone).toArray(Piece[][]::new);
-        return new Board(activeRig, pieces, null, null);
+        return new Board(activeRig, pieces, null, new HashSet<>(), null, null);
     }
 
     // sets all used pieces to future piece and returns count
@@ -52,6 +54,9 @@ public class Board {
         int score;
 
         if(cleared - (splice == null ? 0 : 1) >= 3) {
+            gaffs = possibleGaffs;
+            possibleGaffs = new HashSet<>();
+
             if(cleared - (splice == null ? 0 : 1) >= 5) {
                 clearingPiece = searchPiece;
             }
@@ -112,11 +117,15 @@ public class Board {
                          }
                      }
                 }
+
+                gaffs.addAll(possibleGaffs);
             }
 
             // chain before gaff
             cleared = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
             score = (int)((cleared * cleared * .1) /2) + cleared;
+
+            score += applyGaffs();
 
             for (int y : clearedPieces.keySet()) {
                 Set<Integer> xPieces = clearedPieces.get(y);
@@ -155,6 +164,66 @@ public class Board {
         }
 
         return score;
+    }
+
+    private int applyGaffs() {
+        int gaffedPieces = 0;
+        for(IntTuple gaff : gaffs) {
+            //aboves
+            if(gaff.y < 5 && gaff.y > 0) {
+                if(gaff.x > 0 && pieces[gaff.y - 1][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x - 1] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y - 1][gaff.x - 1] = FuturePiece.INSTANCE;
+                }
+                if(gaff.x < pieces[gaff.y - 1].length && pieces[gaff.y - 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
+                }
+            }
+            else if(gaff.y >= 5) {
+                if(pieces[gaff.y - 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
+                }
+                if(pieces[gaff.y - 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x + 1] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y - 1][gaff.x + 1] = FuturePiece.INSTANCE;
+                }
+            }
+
+            // horizontals
+            if(gaff.x > 0 && pieces[gaff.y][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y][gaff.x - 1] != FuturePiece.INSTANCE) {
+                gaffedPieces += 1;
+                pieces[gaff.y][gaff.x - 1] = FuturePiece.INSTANCE;
+            }
+            if(gaff.x < pieces[gaff.y].length - 1 && pieces[gaff.y][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y][gaff.x + 1] != FuturePiece.INSTANCE) {
+                gaffedPieces += 1;
+                pieces[gaff.y][gaff.x + 1] = FuturePiece.INSTANCE;
+            }
+
+            //belows
+            if(gaff.y < 4) {
+                if(pieces[gaff.y + 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
+                }
+                if(pieces[gaff.y + 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x + 1] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y + 1][gaff.x + 1] = FuturePiece.INSTANCE;
+                }
+            }
+            else if(gaff.y < pieces.length - 1) {
+                if(gaff.x > 0 && pieces[gaff.y + 1][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x - 1] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y + 1][gaff.x - 1] = FuturePiece.INSTANCE;
+                }
+                if(gaff.x < pieces[gaff.y + 1].length && pieces[gaff.y + 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x] != FuturePiece.INSTANCE) {
+                    gaffedPieces += 1;
+                    pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
+                }
+            }
+        }
+        return gaffedPieces;
     }
 
     private Piece getChainedPieces(Map<Integer, Set<Integer>> clearedPieces, IntTuple startingCoords) {
@@ -423,62 +492,98 @@ public class Board {
     //visible for testing
     Set<IntTuple> nearbyMatches(int y, int x, Piece piece) {
         Set<IntTuple> matches = new HashSet<>();
-        // aboves
-        if(y > 0) {
-            int bottomHalfOffset = y < 5 ? 0 : -1;
-            if(x > bottomHalfOffset) {
-                if(piece == pieces[y - 1][x - 1 - bottomHalfOffset] || pieces[y - 1][x - 1 - bottomHalfOffset] instanceof WildPiece)
-                    matches.add(new IntTuple(y - 1, x - 1 - bottomHalfOffset));
-                else if(pieces[y - 1][x - 1 - bottomHalfOffset] instanceof SpliceDownLeftPiece) {
-                    splice = new IntTuple(y - 1, x - 1 - bottomHalfOffset);
-                    matches.add(splice);
-                }
+
+        //aboves
+        if(y < 5 && y > 0) {
+            if(x > 0 && (pieces[y - 1][x - 1] == piece || pieces[y - 1][x - 1] instanceof WildPiece || pieces[y - 1][x - 1] instanceof SpliceDownRightPiece)) {
+                IntTuple target = new IntTuple(y - 1,x - 1);
+                matches.add(target);
+                if(pieces[y - 1][x - 1] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y - 1][x - 1] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
             }
-            if(x < pieces[y - 1].length + bottomHalfOffset) {
-                if (piece == pieces[y - 1][x - bottomHalfOffset] || pieces[y - 1][x - bottomHalfOffset] instanceof WildPiece)
-                    matches.add(new IntTuple(y - 1, x - bottomHalfOffset));
-                else if(pieces[y - 1][x - bottomHalfOffset] instanceof SpliceDownRightPiece) {
-                    splice = new IntTuple(y - 1, x - bottomHalfOffset);
-                    matches.add(splice);
-                }
+            if(x < pieces[y - 1].length && (pieces[y - 1][x] == piece || pieces[y - 1][x] instanceof WildPiece || pieces[y - 1][x] instanceof SpliceDownLeftPiece)) {
+                IntTuple target = new IntTuple(y - 1, x);
+                matches.add(target);
+                if(pieces[y - 1][x] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y - 1][x] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
             }
         }
+        else if(y >= 5) {
+            if(pieces[y - 1][x] == piece || pieces[y - 1][x] instanceof WildPiece || pieces[y - 1][x] instanceof SpliceDownLeftPiece) {
+                IntTuple target = new IntTuple(y - 1, x);
+                matches.add(target);
+                if(pieces[y - 1][x] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y - 1][x] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
+            }
+            if(pieces[y - 1][x + 1] == piece || pieces[y - 1][x + 1] instanceof WildPiece || pieces[y - 1][x + 1] instanceof SpliceDownLeftPiece) {
+                IntTuple target = new IntTuple(y - 1, x + 1);
+                matches.add(target);
+                if(pieces[y - 1][x + 1] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y - 1][x + 1] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
+            }
+        }
+
         // horizontals
-        if(x > 0) {
-            if (piece == pieces[y][x - 1] || pieces[y][x - 1] instanceof WildPiece)
-                matches.add(new IntTuple(y, x - 1));
-            else if(pieces[y][x - 1] instanceof SpliceHorizontalPiece) {
-                splice = new IntTuple(y, x - 1);
-                matches.add(splice);
-            }
+        if(x > 0 && (pieces[y][x - 1] == piece || pieces[y][x - 1] instanceof WildPiece || pieces[y][x - 1] instanceof SpliceDownLeftPiece)) {
+            IntTuple target = new IntTuple(y, x - 1);
+            matches.add(target);
+            if(pieces[y][x - 1] == GaffPiece.INSTANCE)
+                possibleGaffs.add(target);
+            else if(pieces[y][x - 1] == SpliceDownRightPiece.INSTANCE)
+                splice = target;
         }
-        if(x < pieces[y].length - 1) {
-            if (piece == pieces[y][x + 1] || pieces[y][x + 1] instanceof WildPiece)
-                matches.add(new IntTuple(y, x + 1));
-            else if(pieces[y][x + 1] instanceof SpliceHorizontalPiece) {
-                splice = new IntTuple(y, x + 1);
-                matches.add(splice);
-            }
+        if(x < pieces[y].length - 1 && (pieces[y][x + 1] == piece || pieces[y][x + 1] instanceof WildPiece || pieces[y][x + 1] instanceof SpliceDownLeftPiece)) {
+            IntTuple target = new IntTuple(y, x + 1);
+            matches.add(target);
+            if(pieces[y][x + 1] == GaffPiece.INSTANCE)
+                possibleGaffs.add(target);
+            else if(pieces[y][x + 1] == SpliceDownRightPiece.INSTANCE)
+                splice = target;
         }
+
         //belows
-        if(y < pieces.length - 1) {
-            int bottomHalfOffset = y < 4 ? -1 : 0;
-            if (x > bottomHalfOffset ) {
-                if (piece == pieces[y + 1][x - 1 - bottomHalfOffset] || pieces[y + 1][x - 1 - bottomHalfOffset] instanceof WildPiece)
-                    matches.add(new IntTuple(y + 1, x - 1 - bottomHalfOffset));
-                else if (pieces[y + 1][x - 1 - bottomHalfOffset] instanceof SpliceDownLeftPiece) {
-                    splice = new IntTuple(y + 1, x  - 1 - bottomHalfOffset);
-                    matches.add(splice);
-                }
+        if(y < 4) {
+            if(pieces[y + 1][x] == piece || pieces[y + 1][x] instanceof WildPiece || pieces[y + 1][x] instanceof SpliceDownLeftPiece) {
+                IntTuple target = new IntTuple(y + 1, x);
+                matches.add(target);
+                if(pieces[y + 1][x] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y + 1][x] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
             }
-            if(x < pieces[y + 1].length + bottomHalfOffset) {
-                if ((piece == pieces[y + 1][x - bottomHalfOffset] || pieces[y + 1][x - bottomHalfOffset] instanceof WildPiece)) {
-                    matches.add(new IntTuple(y + 1, x - bottomHalfOffset));
-                }
-                else if (pieces[y + 1][x - bottomHalfOffset] instanceof SpliceDownRightPiece) {
-                    splice = new IntTuple(y + 1, x - bottomHalfOffset);
-                    matches.add(splice);
-                }
+            if(pieces[y + 1][x + 1] == piece || pieces[y + 1][x + 1] instanceof WildPiece || pieces[y + 1][x + 1] instanceof SpliceDownLeftPiece) {
+                IntTuple target = new IntTuple(y + 1, x + 1);
+                matches.add(target);
+                if(pieces[y + 1][x + 1] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y + 1][x + 1] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
+            }
+        }
+        else if(y < pieces.length - 1) {
+            if(x > 0 && (pieces[y + 1][x - 1] == piece || pieces[y + 1][x - 1] instanceof WildPiece || pieces[y + 1][x - 1] instanceof SpliceDownLeftPiece)) {
+                IntTuple target = new IntTuple(y + 1, x - 1);
+                matches.add(target);
+                if(pieces[y + 1][x - 1] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y + 1][x - 1] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
+            }
+            if(x < pieces[y + 1].length && (pieces[y + 1][x] == piece || pieces[y + 1][x] instanceof WildPiece || pieces[y + 1][x] instanceof SpliceDownLeftPiece)) {
+                IntTuple target = new IntTuple(y + 1, x);
+                matches.add(target);
+                if(pieces[y + 1][x] == GaffPiece.INSTANCE)
+                    possibleGaffs.add(target);
+                else if(pieces[y + 1][x] == SpliceDownRightPiece.INSTANCE)
+                    splice = target;
             }
         }
 

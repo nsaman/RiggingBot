@@ -283,7 +283,7 @@ public class RiggingBot
                 swapQueue = solutionSearch.searchDepthThreads(numThreads, depth);
                 status.log("Search time: " + (System.currentTimeMillis() - searchTime));
                 System.out.println("Search time: " + (System.currentTimeMillis() - searchTime));
-                String swapString = "";
+                String swapString = "rig: " + board.getActiveRig() + " ";
                 for (Swap swap : swapQueue)
                 {
                     swapString += "=> ";
