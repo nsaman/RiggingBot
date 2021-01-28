@@ -28,6 +28,7 @@ public class SolutionSearch
     public List<Swap> searchDepth(int depth)
     {
         List<Swap> bestSwap = null;
+        int bestSwapScore = -1;
 
         for (int i = startIndex; i < endIndex; i++)
         {
@@ -35,26 +36,33 @@ public class SolutionSearch
 
             copyBoard.makeMove(i);
 
-            int score = 0;
-
-            score += copyBoard.doRig();
-
-            if(score > 0)
-                score += copyBoard.doClear();
-
-            Swap thisSwap = new Swap(i, score);
-
-            copyBoard.setActiveRig((copyBoard.getActiveRig() + 1) % 6);
+            int score = copyBoard.doRig();
 
             List<Swap> swaps;
-            if(depth > 1 && score <= 0)
-                swaps = findBestChildSwap(copyBoard, depth - 1);
-            else
-                swaps = new ArrayList<>();
-            swaps.add(0, thisSwap);
 
-            if(bestSwap == null || sumSwapScores(swaps) > sumSwapScores(bestSwap))
+            if(score > 0) {
+                score += copyBoard.doClear();
+
+                Swap thisSwap = new Swap(i, score);
+                swaps = new ArrayList<>();
+                swaps.add(0, thisSwap);
+
+            } else {
+                Swap thisSwap = new Swap(i, score);
+                if(depth > 1) {
+                    copyBoard.setActiveRig((copyBoard.getActiveRig() + 1) % 6);
+                    swaps = findBestChildSwap(copyBoard, depth - 1);
+                } else {
+                    swaps = new ArrayList<>();
+                }
+                swaps.add(0, thisSwap);
+                score = sumSwapScores(swaps);
+            }
+
+            if(bestSwap == null || score > bestSwapScore) {
+                bestSwapScore = score;
                 bestSwap = swaps;
+            }
         }
 
         return bestSwap;
@@ -112,7 +120,7 @@ public class SolutionSearch
     {
         int sum = 0;
         for (int i = 0; i < swaps.size(); i++) {
-            sum += swaps.get(i).getPoints() - i;
+            sum += swaps.get(i).getPoints() * Math.pow(.8,i);
         }
         return sum;
     }
