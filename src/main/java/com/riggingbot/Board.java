@@ -9,7 +9,6 @@ import java.util.*;
 import static com.riggingbot.PieceSearch.*;
 
 @Data
-@AllArgsConstructor
 public class Board {
     public static final int MOVES_PER_DIRECTION = 52;
     public static final int TOTAL_MOVES = MOVES_PER_DIRECTION * 3;
@@ -17,8 +16,9 @@ public class Board {
     private int activeRig;
     private Piece[][] pieces;
     private IntTuple splice = null;
-    private Set<IntTuple> possibleGaffs;
+    private Set<IntTuple> possibleGaffs = new HashSet<>();
     private Set<IntTuple> gaffs;
+    private Set<Integer> impactedRows = new HashSet<>();
 
     //sloppy, used to find tars
     Piece clearingPiece = null;
@@ -31,9 +31,14 @@ public class Board {
         }
     }
 
+    public Board(int activeRig, Piece[][] pieces) {
+        this.activeRig = activeRig;
+        this.pieces = pieces;
+    }
+
     public Board clone() {
         Piece[][] pieces = Arrays.stream(this.pieces).map(Piece[]::clone).toArray(Piece[][]::new);
-        return new Board(activeRig, pieces, null, new HashSet<>(), null, null);
+        return new Board(activeRig, pieces);
     }
 
     // sets all used pieces to future piece and returns count
@@ -94,7 +99,7 @@ public class Board {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y + 1, splice.x));
                              }
                          }
-                     } else {
+                     } else { //downleft
                          if (splice.y < 4 && splice.x < pieces[splice.y].length - 1) {
                              if(searchPiece != pieces[splice.y - 1][splice.x] && pieces[splice.y - 1][splice.x] instanceof StandardPiece) {
                                  getChainedPieces(clearedPieces, new IntTuple(splice.y - 1, splice.x));
@@ -130,6 +135,7 @@ public class Board {
             for (int y : clearedPieces.keySet()) {
                 Set<Integer> xPieces = clearedPieces.get(y);
                 xPieces.forEach(x -> pieces[y][x] = FuturePiece.INSTANCE);
+                impactedRows.add(y);
             }
         } else {
             score = 0;
@@ -174,20 +180,24 @@ public class Board {
                 if(gaff.x > 0 && pieces[gaff.y - 1][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x - 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x - 1] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y - 1);
                 }
                 if(gaff.x < pieces[gaff.y - 1].length && pieces[gaff.y - 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y - 1);
                 }
             }
             else if(gaff.y >= 5) {
                 if(pieces[gaff.y - 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y - 1);
                 }
                 if(pieces[gaff.y - 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x + 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x + 1] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y - 1);
                 }
             }
 
@@ -195,10 +205,12 @@ public class Board {
             if(gaff.x > 0 && pieces[gaff.y][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y][gaff.x - 1] != FuturePiece.INSTANCE) {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x - 1] = FuturePiece.INSTANCE;
+                impactedRows.add(gaff.y);
             }
             if(gaff.x < pieces[gaff.y].length - 1 && pieces[gaff.y][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y][gaff.x + 1] != FuturePiece.INSTANCE) {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x + 1] = FuturePiece.INSTANCE;
+                impactedRows.add(gaff.y);
             }
 
             //belows
@@ -206,20 +218,24 @@ public class Board {
                 if(pieces[gaff.y + 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y + 1);
                 }
                 if(pieces[gaff.y + 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x + 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x + 1] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y + 1);
                 }
             }
             else if(gaff.y < pieces.length - 1) {
                 if(gaff.x > 0 && pieces[gaff.y + 1][gaff.x - 1] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x - 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x - 1] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y + 1);
                 }
                 if(gaff.x < pieces[gaff.y + 1].length && pieces[gaff.y + 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
+                    impactedRows.add(gaff.y + 1);
                 }
             }
         }
@@ -258,7 +274,7 @@ public class Board {
         //valuing tar
         int leftOverPieces = 0;
 
-        for (int y = 0; y < pieces.length; y++) {
+        for (int y = impactedRows.stream().mapToInt(v -> v).min().orElse(9); y <= impactedRows.stream().mapToInt(v -> v).max().orElse(-1); y++) {
             for (int x = 0; x < pieces[y].length; x++){
                 if(pieces[y][x] == FuturePiece.INSTANCE)
                     pieces[y][x] = NullPiece.INSTANCE;
@@ -341,61 +357,57 @@ public class Board {
     // visible for testing
     void shiftHorizontally(int row, int moveIdentity) {
         int amount = moveIdentity + 1;
-//        Piece[] arr =  pieces[row];
-//         using a buffer but I really don't like it
-        Piece[] copy = pieces[row].clone();
-        for(int i = 0; i < copy.length; i++) {
-            pieces[row][(i + amount) % copy.length] = copy[i];
-        }
+        Piece[] arr =  pieces[row];
 
         //https://stackoverflow.com/questions/876293/fastest-algorithm-for-circle-shift-n-sized-array-for-m-position
-//        int i, j, k;
-//        Piece tmp;
-//        int gcd = gcd(arr.length, amount);
-//
-//        for(i = 0; i < gcd; i++) {
-//            // start cycle at i
-//            tmp = arr[i];
-//            for(j = i; true; j = k) {
-//                k = j+amount;
-//                if(k >= arr.length) k -= arr.length; // wrap around if we go outside array
-//                if(k == i) break; // end of cycle
-//                arr[j] = arr[k];
-//            }
-//            arr[j] = tmp;
-//        }
+        int i, j, k;
+        Piece tmp;
+        int gcd = gcd(amount, arr.length);
+
+        for(i = 0; i < gcd; i++) {
+            // start cycle at i
+            tmp = arr[i];
+            for(j = i; true; j = k) {
+                k = j-amount;
+                if(k < 0) k += arr.length; // wrap around if we go outside array
+                if(k == i) break; // end of cycle
+                arr[j] = arr[k];
+            }
+            arr[j] = tmp;
+        }
     }
 
     //https://en.wikipedia.org/wiki/Binary_GCD_algorithm
     int gcd(int u, int v)
     {
-        // Base cases
-        //  gcd(n, n) = n
-        if (u == v)
-            return u;
-
-        //  Identity 1: gcd(0, n) = gcd(n, 0) = n
-        if (u == 0)
-            return v;
-        if (v == 0)
-            return u;
-
-        if (u % 2 == 0) { // u is even
-            if (v % 2 == 1) // v is odd
-                return gcd(u/2, v); // Identity 3
-            else // both u and v are even
-                return 2 * gcd(u/2, v/2); // Identity 2
-
-        } else { // u is odd
-            if (v % 2 == 0) // v is even
-                return gcd(u, v/2); // Identity 3
-
-            // Identities 4 and 3 (u and v are odd, so u-v and v-u are known to be even)
-            if (u > v)
-                return gcd((u - v)/2, v);
+        if(u == 1 || v == 5 || v == 7)
+            return 1;
+        if(u == v)
+            return 1;
+        if(v == 6) {
+            if(u == 2 || u == 4)
+                return 2;
+            if(u == 3)
+                return 3;
             else
-                return gcd((v - u)/2, u);
+                return 1;
         }
+        if (v == 8) {
+            if(u == 2 || u == 6)
+                return 2;
+            if(u == 4)
+                return 4;
+            else
+                return 1;
+        }
+        if (v == 9) {
+            if(u == 3 || u == 6)
+                return 3;
+            else
+                return 1;
+        }
+
+        throw new IllegalArgumentException("Yarrr, just use the ranges on a rigging board u=" + u + " v=" + v);
     }
 
     private void shiftDownRight(int row, int moveIdentity) {

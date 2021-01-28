@@ -300,6 +300,52 @@ public class BoardTest {
         Assert.assertEquals(3, matches.size());
     }
 
+    @Test
+    public void test_nearbyMatches(){
+        setBoardToBrown(board);
+        board.nearbyMatches(5,7, BrownPiece.INSTANCE);
+        board.nearbyMatches(4,6, BrownPiece.INSTANCE);
+        board.nearbyMatches(3,5, BrownPiece.INSTANCE);
+        board.nearbyMatches(2,4, BrownPiece.INSTANCE);
+    }
+
+    @Test
+    public void test_shiftHorizontally(){
+        board.shiftHorizontally(0, 0);
+        Assert.assertEquals(BlackPiece.INSTANCE, board.getPieces()[0][0]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[0][1]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[0][2]);
+        Assert.assertEquals(YellowPiece.INSTANCE, board.getPieces()[0][3]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[0][4]);
+
+        board.shiftHorizontally(1, 1);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[1][0]);
+        Assert.assertEquals(BlackPiece.INSTANCE, board.getPieces()[1][1]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[1][2]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[1][3]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[1][4]);
+        Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[1][5]);
+
+        board.shiftHorizontally(2, 2);
+        Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[2][0]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[2][1]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[2][2]);
+        Assert.assertEquals(YellowPiece.INSTANCE, board.getPieces()[2][3]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[2][4]);
+        Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[2][5]);
+        Assert.assertEquals(GrayPiece.INSTANCE, board.getPieces()[2][6]);
+
+        board.shiftHorizontally(3, 3);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[3][0]);
+        Assert.assertEquals(GrayPiece.INSTANCE, board.getPieces()[3][1]);
+        Assert.assertEquals(BrownPiece.INSTANCE, board.getPieces()[3][2]);
+        Assert.assertEquals(DarkBluePiece.INSTANCE, board.getPieces()[3][3]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[3][4]);
+        Assert.assertEquals(LightBluePiece.INSTANCE, board.getPieces()[3][5]);
+        Assert.assertEquals(GrayPiece.INSTANCE, board.getPieces()[3][6]);
+        Assert.assertEquals(BlackPiece.INSTANCE, board.getPieces()[3][7]);
+    }
+
     private void setBoardToBrown(Board board) {
         Arrays.stream(board.getPieces()).forEach(row ->
             Arrays.fill(row, BrownPiece.INSTANCE)
