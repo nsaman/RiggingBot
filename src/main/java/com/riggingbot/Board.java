@@ -1,7 +1,6 @@
 package com.riggingbot;
 
 import com.riggingbot.piece.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.*;
@@ -48,8 +47,6 @@ public class Board {
         if(pieces[activeRigCoords.y][activeRigCoords.x] instanceof SpecialPiece)
             return 0;
 
-        //todo support gaff clearing
-
         Map<Integer, Set<Integer>> clearedPieces = new HashMap<>();
         safeAdd(clearedPieces, activeRigCoords.y, activeRigCoords.x);
         Piece searchPiece = getChainedPieces(clearedPieces, new IntTuple(activeRigCoords.y, activeRigCoords.x));
@@ -58,7 +55,7 @@ public class Board {
         int cleared = clearedPieces.values().stream().map(Set::size).reduce(0, Integer::sum);
         int score;
 
-        if(cleared - (splice == null ? 0 : 1) >= 3) {
+        if((cleared - (splice == null ? 0 : 1) >= 3) || (cleared > 0 && possibleGaffs.size() > 0)) {
             gaffs = possibleGaffs;
             possibleGaffs = new HashSet<>();
 
@@ -66,6 +63,7 @@ public class Board {
                 clearingPiece = searchPiece;
             }
 
+            // todo check if chain of standard in to wild into splice work
             // calculate the splice
             if (splice != null) {
                 Piece splicePiece = pieces[splice.y][splice.x];
@@ -271,22 +269,123 @@ public class Board {
         int bonusScore = 0;
         // todo add looped score
 
-        //valuing tar
-        int leftOverPieces = 0;
+        Map<Integer, Map<Integer, List<IntTuple>>>  possibleLooped = new HashMap<>();
+        Map<Integer, Set<Integer>> leftOverPieces = new HashMap<>();
 
-        for (int y = impactedRows.stream().mapToInt(v -> v).min().orElse(9); y <= impactedRows.stream().mapToInt(v -> v).max().orElse(-1); y++) {
-            for (int x = 0; x < pieces[y].length; x++){
-                if(pieces[y][x] == FuturePiece.INSTANCE)
+        // todo refactor tars out of clear board as they prevent limiting range limiting
+        for (int y = 0; y < pieces.length; y++) {
+            for (int x = 0; x < pieces[y].length; x++) {
+                if (pieces[y][x] == FuturePiece.INSTANCE)
                     pieces[y][x] = NullPiece.INSTANCE;
-                else if(pieces[y][x] == clearingPiece)
-                    leftOverPieces += 1;
+                else if (pieces[y][x] == clearingPiece)
+                    safeAdd(leftOverPieces, y, x);
+                // check for loops
+                if (pieces[y][x] != NullPiece.INSTANCE && y > 0) {
+
+                    // top side
+                    if (y < 5 && x > 0) {
+                        // end. if we're at the end and it isn't a future piece, cut the loop!
+                        if (x == pieces[y].length - 1) {
+                            clearAllLooped(possibleLooped, y, x - 1);
+                        }
+                        // possible loop
+                        else if ( // left piece
+                                (pieces[y][x - 1] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y, x - 1)) &&
+                                        // UpLeft piece
+                                        (pieces[y - 1][x - 1] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y - 1, x - 1)) &&
+                                        // UpRight piece
+                                        (pieces[y - 1][x] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y - 1, x))) {
+                            List<IntTuple> loopList = safeMapGetList(possibleLooped, y, x - 1);
+                            loopList = joinLooped(possibleLooped, loopList, safeMapGetList(possibleLooped, y - 1, x - 1));
+                            loopList = joinLooped(possibleLooped, loopList, safeMapGetList(possibleLooped, y - 1, x));
+
+                            if (loopList == null)
+                                loopList = new ArrayList<>();
+
+                            loopList.add(new IntTuple(y, x));
+                            safeMapPut(possibleLooped, y, x, loopList);
+                        }
+                        // not loop
+                        else {
+                            clearAllLooped(possibleLooped, y, x - 1);
+                            clearAllLooped(possibleLooped, y - 1, x - 1);
+                            clearAllLooped(possibleLooped, y - 1, x);
+                        }
+                    }
+                    else if (y < 8) {
+                        if (x == 0) {
+                            clearAllLooped(possibleLooped, y - 1, x + 1);
+                        }
+                        // end. if we're at the end and it isn't a future piece, cut the loop!
+                        else if (x == pieces[y].length - 1) {
+                            clearAllLooped(possibleLooped, y, x - 1);
+                            clearAllLooped(possibleLooped, y - 1, x);
+                        }
+                        // possible loop
+                        else if ( // left piece
+                                (pieces[y][x - 1] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y, x - 1)) &&
+                                        // UpLeft piece
+                                        (pieces[y - 1][x] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y - 1, x)) &&
+                                        // UpRight piece
+                                        (pieces[y - 1][x + 1] == NullPiece.INSTANCE || safeMapContains(possibleLooped, y - 1, x + 1))) {
+                            List<IntTuple> loopList = safeMapGetList(possibleLooped, y, x - 1);
+                            loopList = joinLooped(possibleLooped, loopList, safeMapGetList(possibleLooped, y - 1, x));
+                            loopList = joinLooped(possibleLooped, loopList, safeMapGetList(possibleLooped, y - 1, x + 1));
+
+                            if (loopList == null)
+                                loopList = new ArrayList<>();
+
+                            loopList.add(new IntTuple(y, x));
+                            safeMapPut(possibleLooped, y, x, loopList);
+                        }
+                        // not loop
+                        else {
+                            clearAllLooped(possibleLooped, y, x - 1);
+                            clearAllLooped(possibleLooped, y - 1, x);
+                            clearAllLooped(possibleLooped, y - 1, x + 1);
+                        }
+                    }
+                    // bottom row
+                    else  {
+                        clearAllLooped(possibleLooped, y - 1, x);
+                        clearAllLooped(possibleLooped, y - 1, x + 1);
+                    }
+
+                }
             }
         }
 
-        if(clearingPiece != null && leftOverPieces == 0)
+        // the fully streamed version of this is too hard
+        Set<List<IntTuple>> loops = new HashSet<>();
+        possibleLooped.values().forEach(yMap -> loops.addAll(yMap.values()));
+        bonusScore += loops.size() * 5;
+        bonusScore += loops.stream().reduce(0, (a, b) -> a + b.size(), Integer::sum) * 2;
+
+        if(clearingPiece != null &&
+                leftOverPieces.entrySet().stream().allMatch(yEntry -> yEntry.getValue().stream().allMatch(x -> safeMapContains(possibleLooped, yEntry.getKey(), x))))
             bonusScore+=10;
 
         return bonusScore;
+    }
+
+    private void clearAllLooped(Map<Integer, Map<Integer, List<IntTuple>>> possibleLooped, int y, int x) {
+        if(safeMapContains(possibleLooped, y, x)) {
+            List<IntTuple> tuples = possibleLooped.get(y).get(x);
+            for(IntTuple tuple : tuples)
+                possibleLooped.get(tuple.y).remove(tuple.x);
+        }
+    }
+
+    private List<IntTuple> joinLooped(Map<Integer, Map<Integer, List<IntTuple>>> possibleLooped, List<IntTuple> tuples1, List<IntTuple> tuples2) {
+        if(tuples1 == tuples2 || tuples2 == null)
+            return tuples1;
+        if(tuples1 == null)
+            return tuples2;
+        tuples1.addAll(tuples2);
+        for(IntTuple tuple : tuples2)
+            possibleLooped.get(tuple.y).put(tuple.x, tuples1);
+
+        return tuples1;
     }
 
     public void makeMove(int moveIndex) {
@@ -499,6 +598,23 @@ public class Board {
 
     private boolean safeContains(Map<Integer, Set<Integer>> map, Integer y, Integer x) {
         return map.containsKey(y) && map.get(y).contains(x);
+    }
+
+    private boolean safeMapContains(Map<Integer, Map<Integer, List<IntTuple>>> map, Integer y, Integer x) {
+        return map.containsKey(y) && map.get(y).containsKey(x);
+    }
+
+    private List<IntTuple> safeMapGetList(Map<Integer, Map<Integer, List<IntTuple>>> map, Integer y, Integer x) {
+        if (map.containsKey(y) && map.get(y).containsKey(x))
+            return map.get(y).get(x);
+        else
+            return null;
+    }
+
+    private void safeMapPut(Map<Integer, Map<Integer, List<IntTuple>>> map, Integer y, Integer x, List<IntTuple> loopList) {
+        if(!map.containsKey(y))
+            map.put(y, new HashMap<>());
+        map.get(y).put(x, loopList);
     }
 
     //visible for testing

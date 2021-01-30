@@ -18,7 +18,7 @@ public class Swap
     {
         Move move = new Move(moveIndex);
 
-        return String.format("%d (%s, row=%s, moves=%d)", points, move.getDirection().name(), move.getRow(), move.getMoveIndex() + 1);
+        return String.format("%d (%s, row=%s, moves=%d : %d)", points, move.getDirection().name(), move.getRow(), move.getMoveIndex() + 1, moveIndex);
     }
 
 }

@@ -27,7 +27,8 @@ public class ExternalWindowManager
             byte[] titleString = new byte[256];
             User32.INSTANCE.GetWindowTextA(hwnd, titleString, titleString.length);
             String title = Native.toString(titleString);
-//            if(title.equals("1Star.PNG - Paint"))
+//            if(title.equals("BadLoop.PNG - Paint"))
+//            if(title.equals("Snipping Tool"))
             if(title.equals("Puzzle Pirates") || (title.startsWith("Puzzle Pirates") && title.endsWith("ocean")))
             {
                 ExternalWindowManager.this.hwnd = hwnd;
