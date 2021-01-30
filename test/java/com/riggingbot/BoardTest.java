@@ -33,15 +33,15 @@ public class BoardTest {
 
     @Test
     public void test_down_right_diagonal() {
-        board.makeMove(53); // move 2
-        board.makeMove(59); // move 4
-        board.makeMove(62); // move 2
-        board.makeMove(73); // move 7
-        board.makeMove(81); // move 8
-        board.makeMove(82); // move 1
-        board.makeMove(94); // move 6
-        board.makeMove(97); // move 3
-        board.makeMove(103); // move 4
+        board.makeMove(new Move(53)); // move 2
+        board.makeMove(new Move(59)); // move 4
+        board.makeMove(new Move(62)); // move 2
+        board.makeMove(new Move(73)); // move 7
+        board.makeMove(new Move(81)); // move 8
+        board.makeMove(new Move(82)); // move 1
+        board.makeMove(new Move(94)); // move 6
+        board.makeMove(new Move(97)); // move 3
+        board.makeMove(new Move(103)); // move 4
 
         // row 0
         // move 2
@@ -134,15 +134,15 @@ public class BoardTest {
 
     @Test
     public void test_down_left_diagonal() {
-        board.makeMove(105); // move 2
-        board.makeMove(111); // move 4
-        board.makeMove(114); // move 2
-        board.makeMove(125); // move 7
-        board.makeMove(133); // move 8
-        board.makeMove(134); // move 1
-        board.makeMove(146); // move 6
-        board.makeMove(149); // move 3
-        board.makeMove(155); // move 4
+        board.makeMove(new Move(105)); // move 2
+        board.makeMove(new Move(111)); // move 4
+        board.makeMove(new Move(114)); // move 2
+        board.makeMove(new Move(125)); // move 7
+        board.makeMove(new Move(133)); // move 8
+        board.makeMove(new Move(134)); // move 1
+        board.makeMove(new Move(146)); // move 6
+        board.makeMove(new Move(149)); // move 3
+        board.makeMove(new Move(155)); // move 4
 
         // row 0
         // move 2
