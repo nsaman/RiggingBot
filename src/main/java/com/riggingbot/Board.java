@@ -273,6 +273,7 @@ public class Board {
         Map<Integer, Set<Integer>> leftOverPieces = new HashMap<>();
 
         // todo refactor tars out of clear board as they prevent limiting range limiting
+        // todo tar to indexed
         for (int y = 0; y < pieces.length; y++) {
             for (int x = 0; x < pieces[y].length; x++) {
                 if (pieces[y][x] == FuturePiece.INSTANCE)
@@ -388,8 +389,7 @@ public class Board {
         return tuples1;
     }
 
-    public void makeMove(int moveIndex) {
-        Move move = getMoveByIndex(moveIndex);
+    public void makeMove(Move move) {
 
         switch (move.getDirection()) {
             case Horizontal -> shiftHorizontally(move.getRow(), move.getMoveIndex());

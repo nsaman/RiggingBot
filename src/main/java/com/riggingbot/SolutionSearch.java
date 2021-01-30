@@ -25,16 +25,28 @@ public class SolutionSearch
         this.endIndex = endIndex;
     }
 
-    public List<Swap> searchDepth(int depth)
+    public List<Swap> searchDepth(int depth, Move previousMove)
     {
         List<Swap> bestSwap = null;
         int bestSwapScore = -1;
 
         for (int i = startIndex; i < endIndex; i++)
         {
+            Move move = Board.getMoveByIndex(i);
+
+            if(previousMove != null && previousMove.getDirection() == move.getDirection()) {
+                // don't move the same row twice
+                if (previousMove.getRow() == move.getRow())
+                    continue;
+                // don't duplicate move pairs
+                else if (previousMove.getRow() < move.getRow() && !previousMove.movesOnRig((board.getActiveRig() + 5) % 6)) {
+                    continue;
+                }
+            }
+
             Board copyBoard = board.clone();
 
-            copyBoard.makeMove(i);
+            copyBoard.makeMove(move);
 
             int score = copyBoard.doRig();
 
@@ -51,7 +63,7 @@ public class SolutionSearch
                 Swap thisSwap = new Swap(i, score);
                 if(depth > 1) {
                     copyBoard.setActiveRig((copyBoard.getActiveRig() + 1) % 6);
-                    swaps = findBestChildSwap(copyBoard, depth - 1);
+                    swaps = findBestChildSwap(copyBoard, depth - 1, move);
                 } else {
                     swaps = new ArrayList<>();
                 }
@@ -109,11 +121,11 @@ public class SolutionSearch
         return bestSwaps;
     }
 
-    private List<Swap> findBestChildSwap(Board sourceBoard, int depth){
+    private List<Swap> findBestChildSwap(Board sourceBoard, int depth, Move previousMove){
 
         SolutionSearch childSearcher = new SolutionSearch(sourceBoard, 0, Board.TOTAL_MOVES);
 
-        return childSearcher.searchDepth(depth);
+        return childSearcher.searchDepth(depth, previousMove);
     }
 
     private static int sumSwapScores(List<Swap> swaps)
