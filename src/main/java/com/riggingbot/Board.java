@@ -636,12 +636,12 @@ public class Board {
                 matches.add(target);
                 if(pieces[y - 1][x] == GaffPiece.INSTANCE)
                     possibleGaffs.add(target);
-                else if(pieces[y - 1][x] == SpliceDownRightPiece.INSTANCE)
+                else if(pieces[y - 1][x] == SpliceDownLeftPiece.INSTANCE)
                     splice = target;
             }
         }
         else if(y >= 5) {
-            if(pieces[y - 1][x] == piece || pieces[y - 1][x] instanceof WildPiece || pieces[y - 1][x] instanceof SpliceDownLeftPiece) {
+            if(pieces[y - 1][x] == piece || pieces[y - 1][x] instanceof WildPiece || pieces[y - 1][x] instanceof SpliceDownRightPiece) {
                 IntTuple target = new IntTuple(y - 1, x);
                 matches.add(target);
                 if(pieces[y - 1][x] == GaffPiece.INSTANCE)
@@ -654,26 +654,26 @@ public class Board {
                 matches.add(target);
                 if(pieces[y - 1][x + 1] == GaffPiece.INSTANCE)
                     possibleGaffs.add(target);
-                else if(pieces[y - 1][x + 1] == SpliceDownRightPiece.INSTANCE)
+                else if(pieces[y - 1][x + 1] == SpliceDownLeftPiece.INSTANCE)
                     splice = target;
             }
         }
 
         // horizontals
-        if(x > 0 && (pieces[y][x - 1] == piece || pieces[y][x - 1] instanceof WildPiece || pieces[y][x - 1] instanceof SpliceDownLeftPiece)) {
+        if(x > 0 && (pieces[y][x - 1] == piece || pieces[y][x - 1] instanceof WildPiece || pieces[y][x - 1] instanceof SpliceHorizontalPiece)) {
             IntTuple target = new IntTuple(y, x - 1);
             matches.add(target);
             if(pieces[y][x - 1] == GaffPiece.INSTANCE)
                 possibleGaffs.add(target);
-            else if(pieces[y][x - 1] == SpliceDownRightPiece.INSTANCE)
+            else if(pieces[y][x - 1] == SpliceHorizontalPiece.INSTANCE)
                 splice = target;
         }
-        if(x < pieces[y].length - 1 && (pieces[y][x + 1] == piece || pieces[y][x + 1] instanceof WildPiece || pieces[y][x + 1] instanceof SpliceDownLeftPiece)) {
+        if(x < pieces[y].length - 1 && (pieces[y][x + 1] == piece || pieces[y][x + 1] instanceof WildPiece || pieces[y][x + 1] instanceof SpliceHorizontalPiece)) {
             IntTuple target = new IntTuple(y, x + 1);
             matches.add(target);
             if(pieces[y][x + 1] == GaffPiece.INSTANCE)
                 possibleGaffs.add(target);
-            else if(pieces[y][x + 1] == SpliceDownRightPiece.INSTANCE)
+            else if(pieces[y][x + 1] == SpliceHorizontalPiece.INSTANCE)
                 splice = target;
         }
 
@@ -684,10 +684,10 @@ public class Board {
                 matches.add(target);
                 if(pieces[y + 1][x] == GaffPiece.INSTANCE)
                     possibleGaffs.add(target);
-                else if(pieces[y + 1][x] == SpliceDownRightPiece.INSTANCE)
+                else if(pieces[y + 1][x] == SpliceDownLeftPiece.INSTANCE)
                     splice = target;
             }
-            if(pieces[y + 1][x + 1] == piece || pieces[y + 1][x + 1] instanceof WildPiece || pieces[y + 1][x + 1] instanceof SpliceDownLeftPiece) {
+            if(pieces[y + 1][x + 1] == piece || pieces[y + 1][x + 1] instanceof WildPiece || pieces[y + 1][x + 1] instanceof SpliceDownRightPiece) {
                 IntTuple target = new IntTuple(y + 1, x + 1);
                 matches.add(target);
                 if(pieces[y + 1][x + 1] == GaffPiece.INSTANCE)
@@ -702,10 +702,10 @@ public class Board {
                 matches.add(target);
                 if(pieces[y + 1][x - 1] == GaffPiece.INSTANCE)
                     possibleGaffs.add(target);
-                else if(pieces[y + 1][x - 1] == SpliceDownRightPiece.INSTANCE)
+                else if(pieces[y + 1][x - 1] == SpliceDownLeftPiece.INSTANCE)
                     splice = target;
             }
-            if(x < pieces[y + 1].length && (pieces[y + 1][x] == piece || pieces[y + 1][x] instanceof WildPiece || pieces[y + 1][x] instanceof SpliceDownLeftPiece)) {
+            if(x < pieces[y + 1].length && (pieces[y + 1][x] == piece || pieces[y + 1][x] instanceof WildPiece || pieces[y + 1][x] instanceof SpliceDownRightPiece)) {
                 IntTuple target = new IntTuple(y + 1, x);
                 matches.add(target);
                 if(pieces[y + 1][x] == GaffPiece.INSTANCE)
