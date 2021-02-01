@@ -31,7 +31,7 @@ public class StatusFrame extends JFrame
 
         this.quitButton.addActionListener(e -> dispose());
 
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(4, 1, 100, 1);
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(3, 1, 100, 1);
         this.depthSpinner.setModel(spinnerNumberModel);
 
         this.autoCheckBox.addActionListener(e -> {
