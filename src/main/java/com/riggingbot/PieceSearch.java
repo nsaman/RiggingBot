@@ -7,6 +7,7 @@ import com.riggingbot.piece.SpliceHorizontalPiece;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 /**
  * Created by Jacob on 7/12/2015.
@@ -45,6 +46,11 @@ public class PieceSearch
                     {
                         Piece piece = Piece.pieces.get(i);
                         board.getPieces()[y][x] = piece;
+                        Map<Piece, Integer> pieceCounts = board.getPieceCounts();
+                        if(!pieceCounts.containsKey(piece))
+                            pieceCounts.put(piece, 1);
+                        else
+                            pieceCounts.put(piece, pieceCounts.get(piece) + 1);
                     }
                 }
                 if(SpliceDownLeftPiece.INSTANCE.isColorPiece(color)) {

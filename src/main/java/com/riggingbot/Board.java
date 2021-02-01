@@ -18,6 +18,8 @@ public class Board {
     private Set<IntTuple> possibleGaffs = new HashSet<>();
     private Set<IntTuple> gaffs;
     private Set<Integer> impactedRows = new HashSet<>();
+    private Map<Piece, Integer> pieceCounts;
+    private int searchPieceChainCount = 0;
 
     //sloppy, used to find tars
     Piece clearingPiece = null;
@@ -28,16 +30,18 @@ public class Board {
             int pieceCountInRow = CENTER_ROW_COUNT - Math.abs(ROW_OFFSET - y);
             pieces[y] = new Piece[pieceCountInRow];
         }
+        pieceCounts = new HashMap<>();
     }
 
-    public Board(int activeRig, Piece[][] pieces) {
+    public Board(int activeRig, Piece[][] pieces, Map<Piece, Integer> pieceCounts) {
         this.activeRig = activeRig;
         this.pieces = pieces;
+        this.pieceCounts = pieceCounts;
     }
 
     public Board clone() {
         Piece[][] pieces = Arrays.stream(this.pieces).map(Piece[]::clone).toArray(Piece[][]::new);
-        return new Board(activeRig, pieces);
+        return new Board(activeRig, pieces, pieceCounts);
     }
 
     // sets all used pieces to future piece and returns count
@@ -58,6 +62,12 @@ public class Board {
         if((cleared - (splice == null ? 0 : 1) >= 3) || (cleared > 0 && possibleGaffs.size() > 0)) {
             gaffs = possibleGaffs;
             possibleGaffs = new HashSet<>();
+
+            // only copy piececounts if there are changes in counts
+            Map<Piece, Integer> tempMap = new HashMap<>();
+            pieceCounts.forEach(tempMap::put);
+            pieceCounts = tempMap;
+            pieceCounts.put(searchPiece, pieceCounts.get(searchPiece) - searchPieceChainCount);
 
             if(cleared - (splice == null ? 0 : 1) >= 5) {
                 clearingPiece = searchPiece;
@@ -179,11 +189,15 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x - 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    if (pieces[gaff.y - 1][gaff.x - 1] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
                 if(gaff.x < pieces[gaff.y - 1].length && pieces[gaff.y - 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    if (pieces[gaff.y - 1][gaff.x] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
             }
             else if(gaff.y >= 5) {
@@ -191,11 +205,15 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    if (pieces[gaff.y - 1][gaff.x] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
                 if(pieces[gaff.y - 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y - 1][gaff.x + 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x + 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    if (pieces[gaff.y - 1][gaff.x + 1] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
             }
 
@@ -204,11 +222,15 @@ public class Board {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x - 1] = FuturePiece.INSTANCE;
                 impactedRows.add(gaff.y);
+                if (pieces[gaff.y][gaff.x - 1] == clearingPiece)
+                    pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
             }
             if(gaff.x < pieces[gaff.y].length - 1 && pieces[gaff.y][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y][gaff.x + 1] != FuturePiece.INSTANCE) {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x + 1] = FuturePiece.INSTANCE;
                 impactedRows.add(gaff.y);
+                if (pieces[gaff.y][gaff.x + 1] == clearingPiece)
+                    pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
             }
 
             //belows
@@ -217,11 +239,15 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    if (pieces[gaff.y + 1][gaff.x] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
                 if(pieces[gaff.y + 1][gaff.x + 1] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x + 1] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x + 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    if (pieces[gaff.y + 1][gaff.x + 1] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
             }
             else if(gaff.y < pieces.length - 1) {
@@ -229,11 +255,15 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x - 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    if (pieces[gaff.y + 1][gaff.x - 1] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
                 if(gaff.x < pieces[gaff.y + 1].length && pieces[gaff.y + 1][gaff.x] != NullPiece.INSTANCE && pieces[gaff.y + 1][gaff.x] != FuturePiece.INSTANCE) {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    if (pieces[gaff.y + 1][gaff.x] == clearingPiece)
+                        pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
             }
         }
@@ -244,6 +274,8 @@ public class Board {
         Map<Integer, Set<Integer>> newClearedPieces = new HashMap<>();
         safeAdd(newClearedPieces, startingCoords.y, startingCoords.x);
         Piece searchPiece = pieces[startingCoords.y][startingCoords.x];
+        List<Piece> searchPieceTally = new ArrayList<>();
+        searchPieceTally.add(searchPiece);
         while (newClearedPieces.size() > 0) {
             Map<Integer, Set<Integer>> thisPieces = new HashMap<>();
 
@@ -255,11 +287,16 @@ public class Board {
                             .forEach(i -> {
                                 safeAdd(clearedPieces, i.y, i.x);
                                 safeAdd(thisPieces, i.y, i.x);
+                                Piece currentPiece = pieces[i.y][i.x];
+                                if(!(currentPiece instanceof SpecialPiece))
+                                    searchPieceTally.add(currentPiece);
                             });
                 });
             });
             newClearedPieces = thisPieces;
         }
+
+        searchPieceChainCount = searchPieceTally.size();
 
         return searchPiece;
     }
@@ -267,19 +304,15 @@ public class Board {
     // sets all futures to null, and handles looped pieces
     public int doClear() {
         int bonusScore = 0;
-        // todo add looped score
 
         Map<Integer, Map<Integer, List<IntTuple>>>  possibleLooped = new HashMap<>();
-        Map<Integer, Set<Integer>> leftOverPieces = new HashMap<>();
 
         // todo refactor tars out of clear board as they prevent limiting range limiting
         // todo tar to indexed
-        for (int y = 0; y < pieces.length; y++) {
+        for (int y = impactedRows.stream().mapToInt(v -> v).min().orElse(9); y < pieces.length; y++) {
             for (int x = 0; x < pieces[y].length; x++) {
                 if (pieces[y][x] == FuturePiece.INSTANCE)
                     pieces[y][x] = NullPiece.INSTANCE;
-                else if (pieces[y][x] == clearingPiece)
-                    safeAdd(leftOverPieces, y, x);
                 // check for loops
                 if (pieces[y][x] != NullPiece.INSTANCE && y > 0) {
 
@@ -362,9 +395,17 @@ public class Board {
         bonusScore += loops.size() * 5;
         bonusScore += loops.stream().reduce(0, (a, b) -> a + b.size(), Integer::sum) * 2;
 
-        if(clearingPiece != null &&
-                leftOverPieces.entrySet().stream().allMatch(yEntry -> yEntry.getValue().stream().allMatch(x -> safeMapContains(possibleLooped, yEntry.getKey(), x))))
-            bonusScore+=10;
+        if (clearingPiece != null) {
+            loops.forEach(loop -> {
+                long loopedClearPieces = loop.stream().filter(tuple -> pieces[tuple.y][tuple.x] == clearingPiece).count();
+                pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - (int)loopedClearPieces);
+            });
+            if(pieceCounts.get(clearingPiece) == 0)
+                bonusScore+=10;
+            else if(pieceCounts.get(clearingPiece) < 0) {
+                throw new IllegalStateException("yarrr I booched it. clearing piece count =" + pieceCounts.get(clearingPiece));
+            }
+        }
 
         return bonusScore;
     }
