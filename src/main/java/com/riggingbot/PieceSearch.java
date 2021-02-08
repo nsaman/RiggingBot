@@ -79,8 +79,8 @@ public class PieceSearch
         Color topRightColor = new Color(screenCapture.getRGB(380, 142));
         Color bottomRightColor = new Color(screenCapture.getRGB(367, 343));
         Color bottomColor = new Color(screenCapture.getRGB(196, 404));
-        Color bottomLeftColor = new Color(screenCapture.getRGB(31, 307));
-        Color topLeftColor = new Color(screenCapture.getRGB(53, 96));
+        Color bottomLeftColor = new Color(screenCapture.getRGB(29, 307));
+        Color topLeftColor = new Color(screenCapture.getRGB(55, 96));
         if(withinX(highlighted, topColor, 10) || withinX(whiteHighlighted, topColor, 10))
             return 0;
         else if(withinX(highlighted, topRightColor, 10) || withinX(whiteHighlighted, topRightColor, 10))
