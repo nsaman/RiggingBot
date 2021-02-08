@@ -57,6 +57,7 @@ public class MouseMoveThread extends Thread
     public void shutdown()
     {
         operable = false;
+        hasMove = false;
     }
 
     @Override
@@ -89,12 +90,18 @@ public class MouseMoveThread extends Thread
                     {
                         e.printStackTrace();
                     }
+                    if(!hasMove) {
+                        continue;
+                    }
                     setTargetDestination(startX, startY);
                     clicked = false;
                     initMoveTime = System.currentTimeMillis();
                     continue;
                 }
 
+                if(!hasMove) {
+                    continue;
+                }
                 Point point = calculateMousePosition(System.currentTimeMillis() - initMoveTime);
 
                 robot.mouseMove(point.x, point.y);
@@ -113,6 +120,9 @@ public class MouseMoveThread extends Thread
                         } catch (InterruptedException e)
                         {
                             e.printStackTrace();
+                        }
+                        if(!hasMove) {
+                            continue;
                         }
                         initMoveTime = System.currentTimeMillis();
                         setTargetDestination(endX, endY);
@@ -191,5 +201,10 @@ public class MouseMoveThread extends Thread
     public boolean hasMove()
     {
         return hasMove;
+    }
+
+    public void removeMove()
+    {
+        hasMove = false;
     }
 }

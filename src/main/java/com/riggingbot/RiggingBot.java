@@ -253,6 +253,15 @@ public class RiggingBot
         int adjustedX = exWinMan.getWindowBounds().x + puzzlePosition.x;
         int adjustedY = exWinMan.getWindowBounds().y + puzzlePosition.y;
 
+
+        BufferedImage screenCapture = robot.createScreenCapture(exWinMan.getWindowBounds());
+        ImageSearch puzzleSearch = new ImageSearch(screenCapture, puzzleCorner);
+        if(puzzleSearch.search() == null) {
+            status.setStatus("Waiting for board");
+            mouseMoveThread.removeMove();
+            return;
+        }
+
         BufferedImage puzzleCapture = robot.createScreenCapture(new Rectangle(adjustedX, adjustedY, 429, 530));
         ImageSearch imageSearch = new ImageSearch(puzzleCapture, selectionCorner);
         Point selectionPos = imageSearch.search();
