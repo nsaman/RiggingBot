@@ -18,6 +18,7 @@ public class Board {
     private Set<IntTuple> possibleGaffs = new HashSet<>();
     private Set<IntTuple> gaffs;
     private Set<Integer> impactedRows = new HashSet<>();
+    private Set<Integer> impactedColumns = new HashSet<>();
     private Map<Piece, Integer> pieceCounts;
     private int searchPieceChainCount = 0;
 
@@ -73,7 +74,6 @@ public class Board {
                 clearingPiece = searchPiece;
             }
 
-            // todo check if chain of standard in to wild into splice work
             // calculate the splice
             if (splice != null) {
                 Piece splicePiece = pieces[splice.y][splice.x];
@@ -140,11 +140,17 @@ public class Board {
 
             score += applyGaffs();
 
+
             for (int y : clearedPieces.keySet()) {
                 Set<Integer> xPieces = clearedPieces.get(y);
-                xPieces.forEach(x -> pieces[y][x] = FuturePiece.INSTANCE);
+                xPieces.forEach(x -> {pieces[y][x] = FuturePiece.INSTANCE;
+                    impactedColumns.add(x);});
                 impactedRows.add(y);
             }
+
+            // do loops
+            if (cleared > 5)
+                score += doLoops();
         } else {
             score = 0;
         }
@@ -189,6 +195,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x - 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    impactedColumns.add(gaff.x - 1);
                     if (pieces[gaff.y - 1][gaff.x - 1] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -196,6 +203,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    impactedColumns.add(gaff.x);
                     if (pieces[gaff.y - 1][gaff.x] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -205,6 +213,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    impactedColumns.add(gaff.x);
                     if (pieces[gaff.y - 1][gaff.x] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -212,6 +221,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y - 1][gaff.x + 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y - 1);
+                    impactedColumns.add(gaff.x + 1);
                     if (pieces[gaff.y - 1][gaff.x + 1] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -222,6 +232,7 @@ public class Board {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x - 1] = FuturePiece.INSTANCE;
                 impactedRows.add(gaff.y);
+                impactedColumns.add(gaff.x - 1);
                 if (pieces[gaff.y][gaff.x - 1] == clearingPiece)
                     pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
             }
@@ -229,6 +240,7 @@ public class Board {
                 gaffedPieces += 1;
                 pieces[gaff.y][gaff.x + 1] = FuturePiece.INSTANCE;
                 impactedRows.add(gaff.y);
+                impactedColumns.add(gaff.x + 1);
                 if (pieces[gaff.y][gaff.x + 1] == clearingPiece)
                     pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
             }
@@ -239,6 +251,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    impactedColumns.add(gaff.x);
                     if (pieces[gaff.y + 1][gaff.x] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -246,6 +259,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x + 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    impactedColumns.add(gaff.x + 1);
                     if (pieces[gaff.y + 1][gaff.x + 1] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -255,6 +269,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x - 1] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    impactedColumns.add(gaff.x - 1);
                     if (pieces[gaff.y + 1][gaff.x - 1] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -262,6 +277,7 @@ public class Board {
                     gaffedPieces += 1;
                     pieces[gaff.y + 1][gaff.x] = FuturePiece.INSTANCE;
                     impactedRows.add(gaff.y + 1);
+                    impactedColumns.add(gaff.x);
                     if (pieces[gaff.y + 1][gaff.x] == clearingPiece)
                         pieceCounts.put(clearingPiece, pieceCounts.get(clearingPiece) - 1);
                 }
@@ -283,7 +299,7 @@ public class Board {
                 xSet.forEach(x -> {
                     Set<IntTuple> currentNearby = nearbyMatches(y, x, searchPiece);
                     currentNearby.stream()
-                            .filter(i -> !safeContains(clearedPieces, i.y, i.x))
+                            .filter(i -> !safeContains(clearedPieces, i.y, i.x) && (searchPiece != SpliceDownLeftPiece.INSTANCE && searchPiece != SpliceDownRightPiece.INSTANCE && searchPiece != SpliceHorizontalPiece.INSTANCE))
                             .forEach(i -> {
                                 safeAdd(clearedPieces, i.y, i.x);
                                 safeAdd(thisPieces, i.y, i.x);
@@ -296,21 +312,23 @@ public class Board {
             newClearedPieces = thisPieces;
         }
 
+        if(splice != null) {
+            safeAdd(clearedPieces, splice.y, splice.x);
+        }
+
         searchPieceChainCount = searchPieceTally.size();
 
         return searchPiece;
     }
 
     // sets all futures to null, and handles looped pieces
-    public int doClear() {
+    public int doLoops() {
         int bonusScore = 0;
 
         Map<Integer, Map<Integer, List<IntTuple>>>  possibleLooped = new HashMap<>();
 
-        // todo refactor tars out of clear board as they prevent limiting range limiting
-        // todo tar to indexed
         for (int y = impactedRows.stream().mapToInt(v -> v).min().orElse(9); y < pieces.length; y++) {
-            for (int x = 0; x < pieces[y].length; x++) {
+            for (int x = impactedColumns.stream().mapToInt(v -> v).min().orElse(9); x < pieces[y].length; x++) {
                 if (pieces[y][x] == FuturePiece.INSTANCE)
                     pieces[y][x] = NullPiece.INSTANCE;
                 // check for loops

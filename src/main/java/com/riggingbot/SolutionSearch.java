@@ -53,7 +53,8 @@ public class SolutionSearch
             List<Swap> swaps;
 
             if(score > 0) {
-                score += copyBoard.doClear();
+                // todo do not run doClear if loops are impossible
+                // todo remove all logic that is not necessary for first score search
 
                 Swap thisSwap = new Swap(i, score);
                 swaps = new ArrayList<>();
